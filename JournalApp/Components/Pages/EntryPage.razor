@@ -1,0 +1,104 @@
+﻿@page "/entrypage"
+@using JournalApp.Models
+@using JournalApp.Shared
+
+
+
+<h3>Today's Journal</h3>
+<p><b>Date:</b> @Today.ToString("dddd, MMMM dd, yyyy")</p>
+
+<input class="form-control"
+       placeholder="Title"
+       @bind="Entry.Title" />
+
+<br />
+
+<textarea class="form-control"
+          rows="10"
+          placeholder="Write your thoughts..."
+          @bind="Entry.Content">
+</textarea>
+
+<br />
+
+<button class="btn btn-primary" @onclick="SaveEntry">
+    Save
+</button>
+
+@if (HasEntry)
+{
+    <button class="btn btn-danger ms-2" @onclick="DeleteEntry">
+        Delete
+    </button>
+}
+
+<p class="mt-3 text-muted">
+    @StatusMessage
+</p>
+
+@code {
+
+    private DateTime Today = DateTime.Today;
+
+
+    private List<JournalEntry> Entries => Storage.Entries;
+
+
+
+    private JournalEntry Entry = new();
+    private bool HasEntry = false;
+    private string StatusMessage = "";
+
+    protected override void OnInitialized()
+    {
+        var existing = Entries.FirstOrDefault(e =>
+            e.EntryDate.Date == Today);
+
+        if (existing != null)
+        {
+            Entry = existing;
+            HasEntry = true;
+        }
+    }
+
+
+    private void SaveEntry()
+    {
+        var existing = Entries.FirstOrDefault(e =>
+            e.EntryDate.Date == Today);
+
+        if (existing == null)
+        {
+            Entry.EntryDate = Today;
+
+
+            Entries.Add(Entry);
+        }
+        else
+        {
+            existing.Title = Entry.Title;
+            existing.Content = Entry.Content;
+
+        }
+
+        HasEntry = true;
+        StatusMessage = "Entry saved";
+    }
+
+
+    private void DeleteEntry()
+    {
+        var existing = Entries.FirstOrDefault(e =>
+            e.EntryDate.Date == Today);
+
+        if (existing != null)
+        {
+            Entries.Remove(existing);
+        }
+
+        Entry = new JournalEntry();
+        HasEntry = false;
+        StatusMessage = "Entry deleted";
+    }
+
+}

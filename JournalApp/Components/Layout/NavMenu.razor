@@ -1,0 +1,39 @@
+﻿@using JournalApp.Shared
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">JournalApp</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="entrypage">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> JournalEntry
+            </NavLink>
+        </div>
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="entries">
+                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> AllEntries
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3 mt-3">
+    <button class="btn btn-outline-secondary w-100"
+            @onclick="ToggleTheme">
+        @(ThemeState.IsDarkMode ? "Dark Mode" : "Light Mode")
+    </button>
+</div>
+    </nav>
+</div>
+
+            @code {
+    private void ToggleTheme()
+    {
+        ThemeState.IsDarkMode = !ThemeState.IsDarkMode;
+    }
+}

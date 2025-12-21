@@ -1,0 +1,31 @@
+﻿@page "/view/{date}"
+@using JournalApp.Models
+@using JournalApp.Shared
+
+<h3>Journal Entry</h3>
+
+@if (Entry == null)
+{
+    <p>Entry not found.</p>
+}
+else
+{
+    <p><b>Date:</b> @Entry.EntryDate.ToString("MMMM dd, yyyy")</p>
+    <h4>@Entry.Title</h4>
+    <p>@Entry.Content</p>
+}
+
+@code {
+    [Parameter] public string? date { get; set; }
+
+    private JournalEntry? Entry;
+
+    protected override void OnInitialized()
+    {
+        if (DateTime.TryParse(date, out var parsedDate))
+        {
+            Entry = Storage.Entries
+                .FirstOrDefault(e => e.EntryDate.Date == parsedDate.Date);
+        }
+    }
+}
