@@ -48,6 +48,57 @@
             </div>
         </div>
 
+        <!-- Tag Selection -->
+        <div class="tag-section">
+            <h4>Tags</h4>
+
+            <div class="tag-input-container">
+                <input type="text" class="tag-input" placeholder="Add new tag..."
+                       @bind="newTagName" @bind:event="oninput"
+                       @onkeypress="HandleTagKeyPress" />
+                <button class="btn btn-secondary" @onclick="CreateNewTag" disabled="@string.IsNullOrWhiteSpace(newTagName)">
+                    Add Tag
+                </button>
+            </div>
+
+            @if (availableTags.Any())
+            {
+                <div class="tag-selection">
+                    <label>Select Tags:</label>
+                    <div class="tag-list">
+                        @foreach (var tag in availableTags)
+                        {
+                            <div class="tag-item @(IsTagSelected(tag.Id) ? "selected" : "")"
+                                 style="border-color: @tag.Color"
+                                 @onclick="() => ToggleTag(tag.Id)">
+                                <span class="tag-name">@tag.Name</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
+            @if (selectedTagIds.Any())
+            {
+                <div class="selected-tags-display">
+                    <label>Selected Tags:</label>
+                    <div class="selected-tags">
+                        @foreach (var tagId in selectedTagIds)
+                        {
+                            var tag = availableTags.FirstOrDefault(t => t.Id == tagId);
+                            if (tag != null)
+                            {
+                                <span class="tag-badge" style="background-color: @tag.Color">
+                                    @tag.Name
+                                    <span class="tag-remove" @onclick="() => ToggleTag(tagId)">×</span>
+                                </span>
+                            }
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+
         <div class="editor-container">
             <div id="quill-editor" style="height: 400px;"></div>
         </div>
@@ -79,11 +130,19 @@
 </div>
 
 @code {
+    [Parameter]
+[SupplyParameterFromQuery(Name = "date")]
+public string? DateParam { get; set; }
     private JournalEntry currentEntry = new JournalEntry();
     private DateTime selectedDate = DateTime.Today;
     private string statusMessage = string.Empty;
     private string statusClass = string.Empty;
     private List<string> selectedSecondaryMoods = new List<string>();
+
+    // Tags
+    private List<Tag> availableTags = new List<Tag>();
+    private List<int> selectedTagIds = new List<int>();
+    private string newTagName = string.Empty;
 
     private List<MoodOption> availableMoods = new List<MoodOption>
     {
@@ -99,13 +158,33 @@
         new MoodOption { Name = "Confused", Emoji = "😕", Color = "#DAA520" }
     };
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private static readonly List<string> TagColors = new List<string>
     {
-        if (firstRender)
+        "#007bff", "#28a745", "#dc3545", "#ffc107", "#17a2b8",
+        "#6f42c1", "#e83e8c", "#fd7e14", "#20c997", "#6610f2"
+    };
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+{
+    if (firstRender)
+    {
+        await JSRuntime.InvokeVoidAsync("initQuill");
+        
+        // Check if date parameter was provided
+        if (!string.IsNullOrEmpty(DateParam) && DateTime.TryParse(DateParam, out DateTime paramDate))
         {
-            await JSRuntime.InvokeVoidAsync("initQuill");
-            await LoadEntryForDate(selectedDate);
+            selectedDate = paramDate;
         }
+        
+        await LoadTags();
+        await LoadEntryForDate(selectedDate);
+    }
+}
+
+    private async Task LoadTags()
+    {
+        availableTags = await DatabaseService.GetAllTagsAsync();
+        StateHasChanged();
     }
 
     private async Task OnDateChanged(ChangeEventArgs e)
@@ -135,12 +214,17 @@
             {
                 selectedSecondaryMoods = new List<string>();
             }
+
+            // Load tags for this entry
+            var tags = await DatabaseService.GetTagsForEntryAsync(currentEntry.Id);
+            selectedTagIds = tags.Select(t => t.Id).ToList();
         }
         else
         {
             currentEntry = new JournalEntry { Date = date };
             await JSRuntime.InvokeVoidAsync("setQuillContent", "");
             selectedSecondaryMoods = new List<string>();
+            selectedTagIds = new List<int>();
         }
 
         StateHasChanged();
@@ -188,6 +272,64 @@
         return selectedSecondaryMoods.Contains(mood);
     }
 
+    // Tag methods
+    private async Task HandleTagKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !string.IsNullOrWhiteSpace(newTagName))
+        {
+            await CreateNewTag();
+        }
+    }
+
+    private async Task CreateNewTag()
+    {
+        if (string.IsNullOrWhiteSpace(newTagName))
+            return;
+
+        // Check if tag already exists
+        var existingTag = await DatabaseService.GetTagByNameAsync(newTagName.Trim());
+        if (existingTag != null)
+        {
+            statusMessage = "Tag already exists!";
+            statusClass = "error";
+            newTagName = string.Empty;
+            StateHasChanged();
+            return;
+        }
+
+        var newTag = new Tag
+        {
+            Name = newTagName.Trim(),
+            Color = TagColors[availableTags.Count % TagColors.Count]
+        };
+
+        await DatabaseService.SaveTagAsync(newTag);
+        await LoadTags();
+
+        newTagName = string.Empty;
+        statusMessage = "Tag created successfully!";
+        statusClass = "success";
+        StateHasChanged();
+    }
+
+    private void ToggleTag(int tagId)
+    {
+        if (selectedTagIds.Contains(tagId))
+        {
+            selectedTagIds.Remove(tagId);
+        }
+        else
+        {
+            selectedTagIds.Add(tagId);
+        }
+        StateHasChanged();
+    }
+
+    private bool IsTagSelected(int tagId)
+    {
+        return selectedTagIds.Contains(tagId);
+    }
+
     private bool CanSave()
     {
         return !string.IsNullOrWhiteSpace(currentEntry.PrimaryMood);
@@ -214,6 +356,13 @@
             currentEntry.SecondaryMoods = string.Join(",", selectedSecondaryMoods);
 
             await DatabaseService.SaveEntryAsync(currentEntry);
+
+            // Save tags
+            await DatabaseService.ClearTagsForEntryAsync(currentEntry.Id);
+            foreach (var tagId in selectedTagIds)
+            {
+                await DatabaseService.AddTagToEntryAsync(currentEntry.Id, tagId);
+            }
 
             statusMessage = "Entry saved successfully!";
             statusClass = "success";

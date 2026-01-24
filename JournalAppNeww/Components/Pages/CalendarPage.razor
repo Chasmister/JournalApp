@@ -1,0 +1,186 @@
+﻿@page "/calendar"
+@using JournalAppNeww.Models
+@using JournalAppNeww.Services
+@inject DatabaseService DatabaseService
+@inject NavigationManager Navigation
+
+<div class="calendar-page">
+    <div class="calendar-header">
+        <h2>Journal Calendar</h2>
+        <div class="calendar-navigation">
+            <button class="btn btn-nav" @onclick="PreviousMonth">◀ Previous</button>
+            <h3>@currentMonth.ToString("MMMM yyyy")</h3>
+            <button class="btn btn-nav" @onclick="NextMonth">Next ▶</button>
+        </div>
+        <button class="btn btn-primary" @onclick="GoToToday">Today</button>
+    </div>
+
+    <div class="calendar-grid">
+        <!-- Day headers -->
+        <div class="calendar-day-header">Sun</div>
+        <div class="calendar-day-header">Mon</div>
+        <div class="calendar-day-header">Tue</div>
+        <div class="calendar-day-header">Wed</div>
+        <div class="calendar-day-header">Thu</div>
+        <div class="calendar-day-header">Fri</div>
+        <div class="calendar-day-header">Sat</div>
+
+        <!-- Calendar days -->
+        @foreach (var day in calendarDays)
+        {
+            <div class="calendar-day @GetDayClass(day)" @onclick="() => SelectDay(day)">
+                <div class="day-number">@day.Day</div>
+                @if (HasEntry(day))
+                {
+                    <div class="entry-indicator">
+                        <span class="dot">●</span>
+                    </div>
+                    @if (GetEntryForDay(day) != null)
+                    {
+                        var entry = GetEntryForDay(day);
+                        <div class="day-preview">
+                            @if (!string.IsNullOrEmpty(entry.Title))
+                            {
+                                <div class="preview-title">@entry.Title</div>
+                            }
+                            @if (!string.IsNullOrEmpty(entry.PrimaryMood))
+                            {
+                                <div class="preview-mood">@GetMoodEmoji(entry.PrimaryMood)</div>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+
+    <div class="calendar-legend">
+        <div class="legend-item">
+            <span class="legend-dot" style="background-color: #007bff;">●</span>
+            <span>Has Entry</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot" style="background-color: #28a745;">●</span>
+            <span>Today</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-dot" style="background-color: #6c757d;">●</span>
+            <span>Selected</span>
+        </div>
+    </div>
+</div>
+
+@code {
+    private DateTime currentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private List<DateTime> calendarDays = new List<DateTime>();
+    private List<JournalEntry> monthEntries = new List<JournalEntry>();
+    private DateTime? selectedDate = null;
+
+    private Dictionary<string, string> moodEmojis = new Dictionary<string, string>
+    {
+        { "Happy", "😊" },
+        { "Sad", "😢" },
+        { "Angry", "😠" },
+        { "Anxious", "😰" },
+        { "Calm", "😌" },
+        { "Excited", "🤩" },
+        { "Tired", "😴" },
+        { "Grateful", "🙏" },
+        { "Stressed", "😫" },
+        { "Confused", "😕" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCalendar();
+    }
+
+    private async Task LoadCalendar()
+    {
+        calendarDays.Clear();
+
+        // Get first day of month
+        var firstDayOfMonth = new DateTime(currentMonth.Year, currentMonth.Month, 1);
+        var lastDayOfMonth = firstDayOfMonth.AddMonths(1).AddDays(-1);
+
+        // Get the first Sunday before or on the first day of the month
+        var startDate = firstDayOfMonth.AddDays(-(int)firstDayOfMonth.DayOfWeek);
+
+        // Get the last Saturday after or on the last day of the month
+        var endDate = lastDayOfMonth.AddDays(6 - (int)lastDayOfMonth.DayOfWeek);
+
+        // Generate all days to display
+        for (var date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            calendarDays.Add(date);
+        }
+
+        // Load entries for this month
+        var allEntries = await DatabaseService.GetAllEntriesAsync();
+        monthEntries = allEntries
+            .Where(e => e.Date.Year == currentMonth.Year && e.Date.Month == currentMonth.Month)
+            .ToList();
+
+        StateHasChanged();
+    }
+
+    private void PreviousMonth()
+    {
+        currentMonth = currentMonth.AddMonths(-1);
+        LoadCalendar();
+    }
+
+    private void NextMonth()
+    {
+        currentMonth = currentMonth.AddMonths(1);
+        LoadCalendar();
+    }
+
+    private void GoToToday()
+    {
+        currentMonth = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        selectedDate = DateTime.Today;
+        LoadCalendar();
+    }
+
+    private void SelectDay(DateTime day)
+    {
+        selectedDate = day;
+        // Navigate to journal entry page with this date
+        Navigation.NavigateTo($"/journal?date={day:yyyy-MM-dd}");
+    }
+
+    private string GetDayClass(DateTime day)
+    {
+        var classes = new List<string>();
+
+        if (day.Month != currentMonth.Month)
+            classes.Add("other-month");
+
+        if (day.Date == DateTime.Today)
+            classes.Add("today");
+
+        if (selectedDate.HasValue && day.Date == selectedDate.Value.Date)
+            classes.Add("selected");
+
+        if (HasEntry(day))
+            classes.Add("has-entry");
+
+        return string.Join(" ", classes);
+    }
+
+    private bool HasEntry(DateTime day)
+    {
+        return monthEntries.Any(e => e.Date.Date == day.Date);
+    }
+
+    private JournalEntry? GetEntryForDay(DateTime day)
+    {
+        return monthEntries.FirstOrDefault(e => e.Date.Date == day.Date);
+    }
+
+    private string GetMoodEmoji(string mood)
+    {
+        return moodEmojis.TryGetValue(mood, out var emoji) ? emoji : "";
+    }
+}
