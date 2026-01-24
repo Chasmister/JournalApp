@@ -1,0 +1,243 @@
+﻿@page "/entries"
+@using JournalAppNeww.Models
+@using JournalAppNeww.Services
+@inject DatabaseService DatabaseService
+@inject NavigationManager Navigation
+
+<div class="entries-page">
+    <div class="entries-header">
+        <h2>All Journal Entries</h2>
+        <div class="entries-info">
+            <span>Total: @totalEntries entries</span>
+        </div>
+    </div>
+
+    @if (paginatedEntries.Any())
+    {
+        <div class="entries-list">
+            @foreach (var entry in paginatedEntries)
+            {
+                <div class="entry-item" @onclick="() => ViewEntry(entry)">
+                    <div class="entry-item-header">
+                        <div class="entry-date-mood">
+                            <h3>@entry.Date.ToString("dddd, MMMM dd, yyyy")</h3>
+                            @if (!string.IsNullOrEmpty(entry.PrimaryMood))
+                            {
+                                <div class="mood-display">
+                                    <span class="mood-emoji-large">@GetMoodEmoji(entry.PrimaryMood)</span>
+                                    <span class="mood-label">@entry.PrimaryMood</span>
+                                </div>
+                            }
+                        </div>
+                        @if (!string.IsNullOrEmpty(entry.Title))
+                        {
+                            <h4 class="entry-item-title">@entry.Title</h4>
+                        }
+                    </div>
+
+                    <div class="entry-item-content">
+                        @GetContentPreview(entry.Content)
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(entry.SecondaryMoods))
+                    {
+                        <div class="secondary-moods">
+                            <span class="label">Also feeling:</span>
+                            @foreach (var mood in entry.SecondaryMoods.Split(','))
+                            {
+                                <span class="secondary-mood-badge">
+                                    @GetMoodEmoji(mood) @mood
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    @{
+                        var entryTags = GetEntryTags(entry.Id);
+                    }
+                    @if (entryTags.Any())
+                    {
+                        <div class="entry-tags">
+                            @foreach (var tag in entryTags)
+                            {
+                                <span class="tag-badge-small" style="background-color: @tag.Color">
+                                    @tag.Name
+                                </span>
+                            }
+                        </div>
+                    }
+
+                    <div class="entry-item-meta">
+                        <span>📝 @entry.WordCount words</span>
+                        <span>🕐 @entry.UpdatedAt.ToString("g")</span>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            <button class="pagination-btn" @onclick="FirstPage" disabled="@(currentPage == 1)">
+                ⏮️ First
+            </button>
+            <button class="pagination-btn" @onclick="PreviousPage" disabled="@(currentPage == 1)">
+                ◀️ Previous
+            </button>
+
+            <div class="pagination-info">
+                <span>Page @currentPage of @totalPages</span>
+                <select class="page-size-select" @onchange="ChangePageSize">
+                    <option value="5" selected="@(pageSize == 5)">5 per page</option>
+                    <option value="10" selected="@(pageSize == 10)">10 per page</option>
+                    <option value="20" selected="@(pageSize == 20)">20 per page</option>
+                    <option value="50" selected="@(pageSize == 50)">50 per page</option>
+                </select>
+            </div>
+
+            <button class="pagination-btn" @onclick="NextPage" disabled="@(currentPage == totalPages)">
+                Next ▶️
+            </button>
+            <button class="pagination-btn" @onclick="LastPage" disabled="@(currentPage == totalPages)">
+                Last ⏭️
+            </button>
+        </div>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📖</div>
+            <h3>No Entries Yet</h3>
+            <p>Start your journaling journey today!</p>
+            <button class="btn btn-primary" @onclick="CreateNewEntry">Create Your First Entry</button>
+        </div>
+    }
+</div>
+
+@code {
+    private List<JournalEntry> allEntries = new List<JournalEntry>();
+    private List<JournalEntry> paginatedEntries = new List<JournalEntry>();
+    private Dictionary<int, List<Tag>> entryTagsCache = new Dictionary<int, List<Tag>>();
+
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalEntries = 0;
+    private int totalPages = 0;
+
+    private Dictionary<string, string> moodEmojis = new Dictionary<string, string>
+    {
+        { "Happy", "😊" },
+        { "Sad", "😢" },
+        { "Angry", "😠" },
+        { "Anxious", "😰" },
+        { "Calm", "😌" },
+        { "Excited", "🤩" },
+        { "Tired", "😴" },
+        { "Grateful", "🙏" },
+        { "Stressed", "😫" },
+        { "Confused", "😕" }
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadEntries();
+    }
+
+    private async Task LoadEntries()
+    {
+        allEntries = await DatabaseService.GetAllEntriesAsync();
+        totalEntries = allEntries.Count;
+        totalPages = (int)Math.Ceiling(totalEntries / (double)pageSize);
+
+        // Load tags for all entries
+        entryTagsCache.Clear();
+        foreach (var entry in allEntries)
+        {
+            var tags = await DatabaseService.GetTagsForEntryAsync(entry.Id);
+            entryTagsCache[entry.Id] = tags;
+        }
+
+        UpdatePaginatedEntries();
+    }
+
+    private void UpdatePaginatedEntries()
+    {
+        var skip = (currentPage - 1) * pageSize;
+        paginatedEntries = allEntries.Skip(skip).Take(pageSize).ToList();
+        StateHasChanged();
+    }
+
+    private void FirstPage()
+    {
+        currentPage = 1;
+        UpdatePaginatedEntries();
+    }
+
+    private void PreviousPage()
+    {
+        if (currentPage > 1)
+        {
+            currentPage--;
+            UpdatePaginatedEntries();
+        }
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages)
+        {
+            currentPage++;
+            UpdatePaginatedEntries();
+        }
+    }
+
+    private void LastPage()
+    {
+        currentPage = totalPages;
+        UpdatePaginatedEntries();
+    }
+
+    private void ChangePageSize(ChangeEventArgs e)
+    {
+        if (int.TryParse(e.Value?.ToString(), out int newSize))
+        {
+            pageSize = newSize;
+            totalPages = (int)Math.Ceiling(totalEntries / (double)pageSize);
+            currentPage = 1;
+            UpdatePaginatedEntries();
+        }
+    }
+
+    private string GetMoodEmoji(string mood)
+    {
+        return moodEmojis.TryGetValue(mood, out var emoji) ? emoji : "😐";
+    }
+
+    private string GetContentPreview(string htmlContent)
+    {
+        if (string.IsNullOrEmpty(htmlContent))
+            return "No content";
+
+        var text = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<.*?>", " ");
+        text = text.Trim();
+
+        if (text.Length > 200)
+            return text.Substring(0, 200) + "...";
+
+        return text;
+    }
+
+    private List<Tag> GetEntryTags(int entryId)
+    {
+        return entryTagsCache.TryGetValue(entryId, out var tags) ? tags : new List<Tag>();
+    }
+
+    private void ViewEntry(JournalEntry entry)
+    {
+        Navigation.NavigateTo($"/journal?date={entry.Date:yyyy-MM-dd}");
+    }
+
+    private void CreateNewEntry()
+    {
+        Navigation.NavigateTo($"/journal?date={DateTime.Today:yyyy-MM-dd}");
+    }
+}
