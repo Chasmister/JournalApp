@@ -1,0 +1,149 @@
+﻿@page "/journal"
+@using JournalAppNeww.Models
+@using JournalAppNeww.Services
+@inject DatabaseService DatabaseService
+@inject IJSRuntime JSRuntime
+
+<div class="journal-entry-page">
+    <div class="entry-header">
+        <h2>@selectedDate.ToString("MMMM dd, yyyy")</h2>
+        <input type="date" class="date-picker" value="@selectedDate.ToString("yyyy-MM-dd")"
+               @onchange="OnDateChanged" />
+    </div>
+
+    <div class="entry-form">
+        <input type="text" class="entry-title" placeholder="Entry Title"
+               @bind="currentEntry.Title" @bind:event="oninput" />
+
+        <div class="editor-container">
+            <div id="quill-editor" style="height: 400px;"></div>
+        </div>
+
+        <div class="entry-actions">
+            <button class="btn btn-primary" @onclick="SaveEntry">Save Entry</button>
+            @if (currentEntry.Id != 0)
+            {
+                <button class="btn btn-danger" @onclick="DeleteEntry">Delete Entry</button>
+            }
+        </div>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="status-message @statusClass">
+                @statusMessage
+            </div>
+        }
+    </div>
+
+    <div class="entry-metadata" style="margin-top: 20px; color: #666; font-size: 14px;">
+        @if (currentEntry.Id != 0)
+        {
+            <p>Created: @currentEntry.CreatedAt.ToString("g")</p>
+            <p>Last Updated: @currentEntry.UpdatedAt.ToString("g")</p>
+            <p>Word Count: @currentEntry.WordCount</p>
+        }
+    </div>
+</div>
+
+@code {
+    private JournalEntry currentEntry = new JournalEntry();
+    private DateTime selectedDate = DateTime.Today;
+    private string statusMessage = string.Empty;
+    private string statusClass = string.Empty;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JSRuntime.InvokeVoidAsync("initQuill");
+            await LoadEntryForDate(selectedDate);
+        }
+    }
+
+    private async Task OnDateChanged(ChangeEventArgs e)
+    {
+        if (DateTime.TryParse(e.Value?.ToString(), out DateTime newDate))
+        {
+            selectedDate = newDate;
+            await LoadEntryForDate(selectedDate);
+        }
+    }
+
+    private async Task LoadEntryForDate(DateTime date)
+    {
+        var existingEntry = await DatabaseService.GetEntryByDateAsync(date);
+
+        if (existingEntry != null)
+        {
+            currentEntry = existingEntry;
+            await JSRuntime.InvokeVoidAsync("setQuillContent", currentEntry.Content);
+        }
+        else
+        {
+            currentEntry = new JournalEntry { Date = date };
+            await JSRuntime.InvokeVoidAsync("setQuillContent", "");
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task SaveEntry()
+    {
+        try
+        {
+            var content = await JSRuntime.InvokeAsync<string>("getQuillContent");
+            var textContent = await JSRuntime.InvokeAsync<string>("getQuillText");
+
+            currentEntry.Content = content;
+            currentEntry.Date = selectedDate;
+            currentEntry.WordCount = CountWords(textContent);
+
+            await DatabaseService.SaveEntryAsync(currentEntry);
+
+            statusMessage = "Entry saved successfully!";
+            statusClass = "success";
+
+            // Reload to get updated ID and timestamps
+            await LoadEntryForDate(selectedDate);
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error saving entry: {ex.Message}";
+            statusClass = "error";
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task DeleteEntry()
+    {
+        if (currentEntry.Id == 0)
+            return;
+
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm", "Are you sure you want to delete this entry?");
+
+        if (confirmed)
+        {
+            try
+            {
+                await DatabaseService.DeleteEntryAsync(currentEntry);
+                statusMessage = "Entry deleted successfully!";
+                statusClass = "success";
+                await LoadEntryForDate(selectedDate);
+            }
+            catch (Exception ex)
+            {
+                statusMessage = $"Error deleting entry: {ex.Message}";
+                statusClass = "error";
+            }
+        }
+    }
+
+    private int CountWords(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
+
+        return text.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+}
