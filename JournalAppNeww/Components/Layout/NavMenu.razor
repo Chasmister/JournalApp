@@ -1,32 +1,38 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">JournalAppNeww</a>
-    </div>
-</div>
-
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
-
-<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="nav flex-column">
+﻿<div class="nav-menu">
+    <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+                <span class="icon">📊</span>
+                <span class="nav-text">Dashboard</span>
             </NavLink>
         </div>
+        
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+            <NavLink class="nav-link" href="journal">
+                <span class="icon">✍️</span>
+                <span class="nav-text">Journal Entry</span>
             </NavLink>
         </div>
+
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+            <NavLink class="nav-link" href="calendar">
+                <span class="icon">📅</span>
+                <span class="nav-text">Calendar</span>
             </NavLink>
         </div>
+
         <div class="nav-item px-3">
-    <NavLink class="nav-link" href="journal">
-        <span class="bi bi-journal-text" aria-hidden="true"></span> Journal Entry
-    </NavLink>
-</div>
+            <NavLink class="nav-link" href="analytics">
+                <span class="icon">📈</span>
+                <span class="nav-text">Analytics</span>
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="settings">
+                <span class="icon">⚙️</span>
+                <span class="nav-text">Settings</span>
+            </NavLink>
+        </div>
     </nav>
 </div>
