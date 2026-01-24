@@ -15,12 +15,45 @@
         <input type="text" class="entry-title" placeholder="Entry Title"
                @bind="currentEntry.Title" @bind:event="oninput" />
 
+        <!-- Mood Selection -->
+        <div class="mood-section">
+            <h4>How are you feeling? <span style="color: red;">*</span></h4>
+
+            <div class="mood-primary">
+                <label>Primary Mood:</label>
+                <div class="mood-options">
+                    @foreach (var mood in availableMoods)
+                    {
+                        <div class="mood-item @(currentEntry.PrimaryMood == mood.Name ? "selected" : "")"
+                             @onclick="() => SelectPrimaryMood(mood.Name)">
+                            <span class="mood-emoji">@mood.Emoji</span>
+                            <span class="mood-name">@mood.Name</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mood-secondary">
+                <label>Secondary Moods (optional, max 2):</label>
+                <div class="mood-options">
+                    @foreach (var mood in availableMoods)
+                    {
+                        <div class="mood-item secondary @(IsSecondaryMoodSelected(mood.Name) ? "selected" : "")"
+                             @onclick="() => ToggleSecondaryMood(mood.Name)">
+                            <span class="mood-emoji">@mood.Emoji</span>
+                            <span class="mood-name">@mood.Name</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
         <div class="editor-container">
             <div id="quill-editor" style="height: 400px;"></div>
         </div>
 
         <div class="entry-actions">
-            <button class="btn btn-primary" @onclick="SaveEntry">Save Entry</button>
+            <button class="btn btn-primary" @onclick="SaveEntry" disabled="@(!CanSave())">Save Entry</button>
             @if (currentEntry.Id != 0)
             {
                 <button class="btn btn-danger" @onclick="DeleteEntry">Delete Entry</button>
@@ -50,6 +83,21 @@
     private DateTime selectedDate = DateTime.Today;
     private string statusMessage = string.Empty;
     private string statusClass = string.Empty;
+    private List<string> selectedSecondaryMoods = new List<string>();
+
+    private List<MoodOption> availableMoods = new List<MoodOption>
+    {
+        new MoodOption { Name = "Happy", Emoji = "😊", Color = "#FFD700" },
+        new MoodOption { Name = "Sad", Emoji = "😢", Color = "#4682B4" },
+        new MoodOption { Name = "Angry", Emoji = "😠", Color = "#DC143C" },
+        new MoodOption { Name = "Anxious", Emoji = "😰", Color = "#FF6347" },
+        new MoodOption { Name = "Calm", Emoji = "😌", Color = "#87CEEB" },
+        new MoodOption { Name = "Excited", Emoji = "🤩", Color = "#FF69B4" },
+        new MoodOption { Name = "Tired", Emoji = "😴", Color = "#9370DB" },
+        new MoodOption { Name = "Grateful", Emoji = "🙏", Color = "#32CD32" },
+        new MoodOption { Name = "Stressed", Emoji = "😫", Color = "#FF4500" },
+        new MoodOption { Name = "Confused", Emoji = "😕", Color = "#DAA520" }
+    };
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
@@ -77,18 +125,84 @@
         {
             currentEntry = existingEntry;
             await JSRuntime.InvokeVoidAsync("setQuillContent", currentEntry.Content);
+
+            // Load secondary moods
+            if (!string.IsNullOrEmpty(currentEntry.SecondaryMoods))
+            {
+                selectedSecondaryMoods = currentEntry.SecondaryMoods.Split(',').ToList();
+            }
+            else
+            {
+                selectedSecondaryMoods = new List<string>();
+            }
         }
         else
         {
             currentEntry = new JournalEntry { Date = date };
             await JSRuntime.InvokeVoidAsync("setQuillContent", "");
+            selectedSecondaryMoods = new List<string>();
         }
 
         StateHasChanged();
     }
 
+    private void SelectPrimaryMood(string mood)
+    {
+        currentEntry.PrimaryMood = mood;
+        StateHasChanged();
+    }
+
+    private void ToggleSecondaryMood(string mood)
+    {
+        if (mood == currentEntry.PrimaryMood)
+        {
+            statusMessage = "Cannot select the same mood as primary and secondary.";
+            statusClass = "error";
+            StateHasChanged();
+            return;
+        }
+
+        if (selectedSecondaryMoods.Contains(mood))
+        {
+            selectedSecondaryMoods.Remove(mood);
+        }
+        else
+        {
+            if (selectedSecondaryMoods.Count >= 2)
+            {
+                statusMessage = "You can only select up to 2 secondary moods.";
+                statusClass = "error";
+                StateHasChanged();
+                return;
+            }
+            selectedSecondaryMoods.Add(mood);
+        }
+
+        currentEntry.SecondaryMoods = string.Join(",", selectedSecondaryMoods);
+        statusMessage = string.Empty;
+        StateHasChanged();
+    }
+
+    private bool IsSecondaryMoodSelected(string mood)
+    {
+        return selectedSecondaryMoods.Contains(mood);
+    }
+
+    private bool CanSave()
+    {
+        return !string.IsNullOrWhiteSpace(currentEntry.PrimaryMood);
+    }
+
     private async Task SaveEntry()
     {
+        if (!CanSave())
+        {
+            statusMessage = "Please select a primary mood before saving.";
+            statusClass = "error";
+            StateHasChanged();
+            return;
+        }
+
         try
         {
             var content = await JSRuntime.InvokeAsync<string>("getQuillContent");
@@ -97,13 +211,13 @@
             currentEntry.Content = content;
             currentEntry.Date = selectedDate;
             currentEntry.WordCount = CountWords(textContent);
+            currentEntry.SecondaryMoods = string.Join(",", selectedSecondaryMoods);
 
             await DatabaseService.SaveEntryAsync(currentEntry);
 
             statusMessage = "Entry saved successfully!";
             statusClass = "success";
 
-            // Reload to get updated ID and timestamps
             await LoadEntryForDate(selectedDate);
         }
         catch (Exception ex)
