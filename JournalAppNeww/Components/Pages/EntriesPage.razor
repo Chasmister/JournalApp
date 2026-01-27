@@ -8,8 +8,96 @@
     <div class="entries-header">
         <h2>All Journal Entries</h2>
         <div class="entries-info">
-            <span>Total: @totalEntries entries</span>
+            <span>Showing @filteredEntries.Count of @totalEntries entries</span>
         </div>
+    </div>
+
+    <!-- Search & Filter Section -->
+    <div class="search-filter-section">
+        <div class="search-box">
+            <input type="text" 
+                   class="search-input" 
+                   placeholder="🔍 Search by title or content..." 
+                   @bind="searchQuery" 
+                   @bind:event="oninput"
+                   @onkeyup="ApplyFilters" />
+            @if (!string.IsNullOrWhiteSpace(searchQuery))
+            {
+                <button class="clear-search-btn" @onclick="ClearSearch">×</button>
+            }
+        </div>
+
+        <div class="filter-controls">
+            <button class="filter-toggle-btn" @onclick="ToggleFilters">
+                <span>🎛️ Filters</span>
+                @if (IsAnyFilterActive())
+                {
+                    <span class="active-filter-badge">@GetActiveFilterCount()</span>
+                }
+            </button>
+            @if (IsAnyFilterActive())
+            {
+                <button class="clear-filters-btn" @onclick="ClearAllFilters">Clear All Filters</button>
+            }
+        </div>
+
+        @if (showFilters)
+        {
+            <div class="filters-panel">
+                <!-- Date Range Filter -->
+                <div class="filter-group">
+                    <label>Date Range:</label>
+                    <div class="date-range-inputs">
+                        <input type="date"
+                               class="date-input"
+                               value="@filterStartDate"
+                               @onchange="OnStartDateChanged" />
+                        <span>to</span>
+                        <input type="date"
+                               class="date-input"
+                               value="@filterEndDate"
+                               @onchange="OnEndDateChanged" />
+                    </div>
+                </div>
+
+                <!-- Mood Filter -->
+                <div class="filter-group">
+                    <label>Moods:</label>
+                    <div class="mood-filter-list">
+                        @foreach (var mood in availableMoods)
+                        {
+                            <label class="mood-checkbox-label">
+                                <input type="checkbox" 
+                                       checked="@selectedMoods.Contains(mood)"
+                                       @onchange="(e) => ToggleMoodFilter(mood, e)" />
+                                <span>@GetMoodEmoji(mood) @mood</span>
+                            </label>
+                        }
+                    </div>
+                </div>
+
+                <!-- Tag Filter -->
+                @if (allTags.Any())
+                {
+                    <div class="filter-group">
+                        <label>Tags:</label>
+                        <div class="tag-filter-list">
+                            @foreach (var tag in allTags)
+                            {
+                                <label class="tag-checkbox-label">
+                                    <input type="checkbox" 
+                                           checked="@selectedTagIds.Contains(tag.Id)"
+                                           @onchange="(e) => ToggleTagFilter(tag.Id, e)" />
+                                    <span class="tag-filter-item" style="border-color: @tag.Color">
+                                        @tag.Name
+                                    </span>
+                                </label>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        }
     </div>
 
     @if (paginatedEntries.Any())
@@ -31,12 +119,12 @@
                         </div>
                         @if (!string.IsNullOrEmpty(entry.Title))
                         {
-                            <h4 class="entry-item-title">@entry.Title</h4>
+                            <h4 class="entry-item-title">@HighlightSearchTerm(entry.Title)</h4>
                         }
                     </div>
 
                     <div class="entry-item-content">
-                        @GetContentPreview(entry.Content)
+                        @((MarkupString)HighlightSearchTerm(GetContentPreview(entry.Content)))
                     </div>
 
                     @if (!string.IsNullOrEmpty(entry.SecondaryMoods))
@@ -83,7 +171,7 @@
             <button class="pagination-btn" @onclick="PreviousPage" disabled="@(currentPage == 1)">
                 ◀️ Previous
             </button>
-
+            
             <div class="pagination-info">
                 <span>Page @currentPage of @totalPages</span>
                 <select class="page-size-select" @onchange="ChangePageSize">
@@ -102,6 +190,15 @@
             </button>
         </div>
     }
+    else if (IsAnyFilterActive() || !string.IsNullOrWhiteSpace(searchQuery))
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            <h3>No Results Found</h3>
+            <p>Try adjusting your search or filters.</p>
+            <button class="btn btn-primary" @onclick="ClearAllFilters">Clear All Filters</button>
+        </div>
+    }
     else
     {
         <div class="empty-state">
@@ -115,13 +212,29 @@
 
 @code {
     private List<JournalEntry> allEntries = new List<JournalEntry>();
+    private List<JournalEntry> filteredEntries = new List<JournalEntry>();
     private List<JournalEntry> paginatedEntries = new List<JournalEntry>();
     private Dictionary<int, List<Tag>> entryTagsCache = new Dictionary<int, List<Tag>>();
-
+    private List<Tag> allTags = new List<Tag>();
+    
     private int currentPage = 1;
     private int pageSize = 10;
     private int totalEntries = 0;
     private int totalPages = 0;
+
+    // Search & Filter
+    private string searchQuery = string.Empty;
+    private bool showFilters = false;
+    private string? filterStartDate = null;
+    private string? filterEndDate = null;
+    private List<string> selectedMoods = new List<string>();
+    private List<int> selectedTagIds = new List<int>();
+
+    private List<string> availableMoods = new List<string>
+    {
+        "Happy", "Sad", "Angry", "Anxious", "Calm", 
+        "Excited", "Tired", "Grateful", "Stressed", "Confused"
+    };
 
     private Dictionary<string, string> moodEmojis = new Dictionary<string, string>
     {
@@ -139,14 +252,15 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadEntries();
+        await LoadData();
     }
 
-    private async Task LoadEntries()
+    private async Task LoadData()
     {
         allEntries = await DatabaseService.GetAllEntriesAsync();
         totalEntries = allEntries.Count;
-        totalPages = (int)Math.Ceiling(totalEntries / (double)pageSize);
+        
+        allTags = await DatabaseService.GetAllTagsAsync();
 
         // Load tags for all entries
         entryTagsCache.Clear();
@@ -156,14 +270,174 @@
             entryTagsCache[entry.Id] = tags;
         }
 
+        ApplyFilters();
+    }
+
+    private void OnStartDateChanged(ChangeEventArgs e)
+    {
+        filterStartDate = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void OnEndDateChanged(ChangeEventArgs e)
+    {
+        filterEndDate = e.Value?.ToString();
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        filteredEntries = allEntries.ToList();
+
+        // Search filter
+        if (!string.IsNullOrWhiteSpace(searchQuery))
+        {
+            var query = searchQuery.ToLower();
+            filteredEntries = filteredEntries.Where(e => 
+                (e.Title?.ToLower().Contains(query) ?? false) ||
+                StripHtml(e.Content).ToLower().Contains(query)
+            ).ToList();
+        }
+
+        // Date range filter
+        if (!string.IsNullOrEmpty(filterStartDate) && DateTime.TryParse(filterStartDate, out var startDate))
+        {
+            filteredEntries = filteredEntries.Where(e => e.Date >= startDate.Date).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(filterEndDate) && DateTime.TryParse(filterEndDate, out var endDate))
+        {
+            filteredEntries = filteredEntries.Where(e => e.Date <= endDate.Date).ToList();
+        }
+
+        // Mood filter
+        if (selectedMoods.Any())
+        {
+            filteredEntries = filteredEntries.Where(e => 
+            {
+                if (selectedMoods.Contains(e.PrimaryMood))
+                    return true;
+                
+                if (!string.IsNullOrEmpty(e.SecondaryMoods))
+                {
+                    var secondaryMoodList = e.SecondaryMoods.Split(',').Select(m => m.Trim());
+                    return secondaryMoodList.Any(m => selectedMoods.Contains(m));
+                }
+                
+                return false;
+            }).ToList();
+        }
+
+        // Tag filter
+        if (selectedTagIds.Any())
+        {
+            filteredEntries = filteredEntries.Where(e => 
+            {
+                var entryTags = GetEntryTags(e.Id);
+                return entryTags.Any(t => selectedTagIds.Contains(t.Id));
+            }).ToList();
+        }
+
+        // Reset to first page and update pagination
+        currentPage = 1;
+        totalPages = (int)Math.Ceiling(filteredEntries.Count / (double)pageSize);
         UpdatePaginatedEntries();
     }
 
     private void UpdatePaginatedEntries()
     {
         var skip = (currentPage - 1) * pageSize;
-        paginatedEntries = allEntries.Skip(skip).Take(pageSize).ToList();
+        paginatedEntries = filteredEntries.Skip(skip).Take(pageSize).ToList();
         StateHasChanged();
+    }
+
+    private void ToggleFilters()
+    {
+        showFilters = !showFilters;
+    }
+
+    private void ClearSearch()
+    {
+        searchQuery = string.Empty;
+        ApplyFilters();
+    }
+
+    private void ToggleMoodFilter(string mood, ChangeEventArgs e)
+    {
+        if ((bool)(e.Value ?? false))
+        {
+            selectedMoods.Add(mood);
+        }
+        else
+        {
+            selectedMoods.Remove(mood);
+        }
+        ApplyFilters();
+    }
+
+    private void ToggleTagFilter(int tagId, ChangeEventArgs e)
+    {
+        if ((bool)(e.Value ?? false))
+        {
+            selectedTagIds.Add(tagId);
+        }
+        else
+        {
+            selectedTagIds.Remove(tagId);
+        }
+        ApplyFilters();
+    }
+
+    private bool IsAnyFilterActive()
+    {
+        return !string.IsNullOrWhiteSpace(searchQuery) ||
+               !string.IsNullOrEmpty(filterStartDate) ||
+               !string.IsNullOrEmpty(filterEndDate) ||
+               selectedMoods.Any() ||
+               selectedTagIds.Any();
+    }
+
+    private int GetActiveFilterCount()
+    {
+        int count = 0;
+        if (!string.IsNullOrWhiteSpace(searchQuery)) count++;
+        if (!string.IsNullOrEmpty(filterStartDate)) count++;
+        if (!string.IsNullOrEmpty(filterEndDate)) count++;
+        count += selectedMoods.Count;
+        count += selectedTagIds.Count;
+        return count;
+    }
+
+    private void ClearAllFilters()
+    {
+        searchQuery = string.Empty;
+        filterStartDate = null;
+        filterEndDate = null;
+        selectedMoods.Clear();
+        selectedTagIds.Clear();
+        ApplyFilters();
+    }
+
+    private string StripHtml(string html)
+    {
+        if (string.IsNullOrEmpty(html))
+            return string.Empty;
+
+        return System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", " ").Trim();
+    }
+
+    private string HighlightSearchTerm(string text)
+    {
+        if (string.IsNullOrWhiteSpace(searchQuery) || string.IsNullOrWhiteSpace(text))
+            return text;
+
+        var pattern = System.Text.RegularExpressions.Regex.Escape(searchQuery);
+        return System.Text.RegularExpressions.Regex.Replace(
+            text, 
+            pattern, 
+            match => $"<mark>{match.Value}</mark>",
+            System.Text.RegularExpressions.RegexOptions.IgnoreCase
+        );
     }
 
     private void FirstPage()
@@ -201,7 +475,7 @@
         if (int.TryParse(e.Value?.ToString(), out int newSize))
         {
             pageSize = newSize;
-            totalPages = (int)Math.Ceiling(totalEntries / (double)pageSize);
+            totalPages = (int)Math.Ceiling(filteredEntries.Count / (double)pageSize);
             currentPage = 1;
             UpdatePaginatedEntries();
         }
@@ -217,12 +491,11 @@
         if (string.IsNullOrEmpty(htmlContent))
             return "No content";
 
-        var text = System.Text.RegularExpressions.Regex.Replace(htmlContent, "<.*?>", " ");
-        text = text.Trim();
-
+        var text = StripHtml(htmlContent);
+        
         if (text.Length > 200)
             return text.Substring(0, 200) + "...";
-
+        
         return text;
     }
 
