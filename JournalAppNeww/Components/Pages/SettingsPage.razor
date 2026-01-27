@@ -1,0 +1,353 @@
+﻿@page "/settings"
+@using JournalAppNeww.Models
+@using JournalAppNeww.Services
+@using System.Security.Cryptography
+@using System.Text
+@inject DatabaseService DatabaseService
+@inject ThemeService ThemeService
+@inject IJSRuntime JSRuntime
+
+<div class="settings-page">
+    <div class="settings-header">
+        <h2>Settings</h2>
+        <p class="subtitle">Customize your journal experience</p>
+    </div>
+
+    <!-- Theme Settings -->
+    <div class="settings-section">
+        <h3>🎨 Theme</h3>
+        <p class="section-description">Choose your preferred theme or create a custom one</p>
+
+        <div class="theme-options">
+            <div class="theme-option @(currentTheme == "light" ? "selected" : "")"
+                 @onclick='() => ChangeTheme("light")'>
+                <div class="theme-preview light-preview">
+                    <div class="preview-sidebar"></div>
+                    <div class="preview-content"></div>
+                </div>
+                <span class="theme-name">Light</span>
+            </div>
+
+            <div class="theme-option @(currentTheme == "dark" ? "selected" : "")"
+                 @onclick='() => ChangeTheme("dark")'>
+                <div class="theme-preview dark-preview">
+                    <div class="preview-sidebar"></div>
+                    <div class="preview-content"></div>
+                </div>
+                <span class="theme-name">Dark</span>
+            </div>
+
+            <div class="theme-option @(currentTheme == "custom" ? "selected" : "")"
+                 @onclick="() => showCustomTheme = !showCustomTheme">
+                <div class="theme-preview custom-preview">
+                    <div class="preview-sidebar" style="background-color: @settings.SidebarColor"></div>
+                    <div class="preview-content" style="background-color: @settings.BackgroundColor"></div>
+                </div>
+                <span class="theme-name">Custom</span>
+            </div>
+        </div>
+
+        @if (showCustomTheme || currentTheme == "custom")
+        {
+            <div class="custom-theme-editor">
+                <h4>Custom Theme Colors</h4>
+                <div class="color-inputs">
+                    <div class="color-input-group">
+                        <label>Primary Color:</label>
+                        <input type="color" @bind="customPrimaryColor" />
+                        <span class="color-value">@customPrimaryColor</span>
+                    </div>
+                    <div class="color-input-group">
+                        <label>Background Color:</label>
+                        <input type="color" @bind="customBackgroundColor" />
+                        <span class="color-value">@customBackgroundColor</span>
+                    </div>
+                    <div class="color-input-group">
+                        <label>Sidebar Color:</label>
+                        <input type="color" @bind="customSidebarColor" />
+                        <span class="color-value">@customSidebarColor</span>
+                    </div>
+                    <div class="color-input-group">
+                        <label>Text Color:</label>
+                        <input type="color" @bind="customTextColor" />
+                        <span class="color-value">@customTextColor</span>
+                    </div>
+                </div>
+                <button class="btn btn-primary" @onclick="ApplyCustomTheme">Apply Custom Theme</button>
+            </div>
+        }
+    </div>
+
+    <!-- Security Settings -->
+    <div class="settings-section">
+        <h3>🔒 Security & Privacy</h3>
+        <p class="section-description">Protect your journal with a password</p>
+
+        <div class="security-toggle">
+            <label class="toggle-label">
+                <input type="checkbox"
+                       checked="@settings.PasswordEnabled"
+                       @onchange="TogglePasswordProtection" />
+                <span class="toggle-text">Enable Password Protection</span>
+            </label>
+        </div>
+
+        @if (showPasswordSetup)
+        {
+            <div class="password-setup">
+                <h4>@(settings.PasswordEnabled ? "Change Password" : "Set Password")</h4>
+
+                @if (settings.PasswordEnabled && !passwordVerified)
+                {
+                    <div class="form-group">
+                        <label>Current Password:</label>
+                        <input type="password"
+                               class="form-input"
+                               @bind="currentPassword"
+                               placeholder="Enter current password" />
+                    </div>
+                    <button class="btn btn-secondary" @onclick="VerifyCurrentPassword">Verify</button>
+                }
+                else if (!settings.PasswordEnabled || passwordVerified)
+                {
+                    <div class="form-group">
+                        <label>New Password:</label>
+                        <input type="password"
+                               class="form-input"
+                               @bind="newPassword"
+                               placeholder="Enter new password" />
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password:</label>
+                        <input type="password"
+                               class="form-input"
+                               @bind="confirmPassword"
+                               placeholder="Confirm password" />
+                    </div>
+                    <button class="btn btn-primary" @onclick="SavePassword">Save Password</button>
+                }
+
+                @if (!string.IsNullOrEmpty(passwordMessage))
+                {
+                    <div class="message @passwordMessageClass">@passwordMessage</div>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Data Management -->
+    <div class="settings-section">
+        <h3>💾 Data Management</h3>
+        <p class="section-description">Manage your journal data</p>
+
+        <div class="data-stats">
+            <div class="data-stat-item">
+                <span class="stat-label">Total Entries:</span>
+                <span class="stat-value">@totalEntries</span>
+            </div>
+            <div class="data-stat-item">
+                <span class="stat-label">Total Tags:</span>
+                <span class="stat-value">@totalTags</span>
+            </div>
+            <div class="data-stat-item">
+                <span class="stat-label">Total Words:</span>
+                <span class="stat-value">@totalWords</span>
+            </div>
+        </div>
+
+        <div class="data-actions">
+            <button class="btn btn-danger" @onclick="ClearAllData">Clear All Data</button>
+            <p class="warning-text">⚠️ This action cannot be undone!</p>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrEmpty(statusMessage))
+    {
+        <div class="status-message @statusClass">
+            @statusMessage
+        </div>
+    }
+</div>
+
+@code {
+    private AppSettings settings = new AppSettings();
+    private string currentTheme = "light";
+    private bool showCustomTheme = false;
+    private bool showPasswordSetup = false;
+    private bool passwordVerified = false;
+
+    // Custom theme colors
+    private string customPrimaryColor = "#007bff";
+    private string customBackgroundColor = "#ffffff";
+    private string customSidebarColor = "#2c3e50";
+    private string customTextColor = "#333333";
+
+    // Password fields
+    private string currentPassword = string.Empty;
+    private string newPassword = string.Empty;
+    private string confirmPassword = string.Empty;
+    private string passwordMessage = string.Empty;
+    private string passwordMessageClass = string.Empty;
+
+    // Data stats
+    private int totalEntries = 0;
+    private int totalTags = 0;
+    private int totalWords = 0;
+
+    private string statusMessage = string.Empty;
+    private string statusClass = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadSettings();
+        await LoadDataStats();
+    }
+
+    private async Task LoadSettings()
+    {
+        settings = await DatabaseService.GetSettingsAsync();
+        currentTheme = settings.Theme;
+
+        customPrimaryColor = settings.PrimaryColor;
+        customBackgroundColor = settings.BackgroundColor;
+        customSidebarColor = settings.SidebarColor;
+        customTextColor = settings.TextColor;
+    }
+
+    private async Task LoadDataStats()
+    {
+        var entries = await DatabaseService.GetAllEntriesAsync();
+        totalEntries = entries.Count;
+        totalWords = entries.Sum(e => e.WordCount);
+
+        var tags = await DatabaseService.GetAllTagsAsync();
+        totalTags = tags.Count;
+    }
+
+    private async Task ChangeTheme(string theme)
+    {
+        currentTheme = theme;
+        await ThemeService.SetThemeAsync(theme);
+
+        statusMessage = $"Theme changed to {theme}";
+        statusClass = "success";
+        StateHasChanged();
+    }
+
+    private async Task ApplyCustomTheme()
+    {
+        await ThemeService.SetCustomColorsAsync(
+            customPrimaryColor,
+            customBackgroundColor,
+            customSidebarColor,
+            customTextColor
+        );
+
+        currentTheme = "custom";
+        statusMessage = "Custom theme applied successfully!";
+        statusClass = "success";
+        StateHasChanged();
+    }
+
+    private void TogglePasswordProtection(ChangeEventArgs e)
+    {
+        var enabled = (bool)(e.Value ?? false);
+
+        if (enabled)
+        {
+            showPasswordSetup = true;
+            passwordVerified = false;
+        }
+        else
+        {
+            showPasswordSetup = true;
+        }
+    }
+
+    private void VerifyCurrentPassword()
+    {
+        var hashedInput = HashPassword(currentPassword);
+
+        if (hashedInput == settings.PasswordHash)
+        {
+            passwordVerified = true;
+            passwordMessage = "Password verified! You can now set a new password.";
+            passwordMessageClass = "success";
+        }
+        else
+        {
+            passwordMessage = "Incorrect password. Please try again.";
+            passwordMessageClass = "error";
+        }
+
+        currentPassword = string.Empty;
+        StateHasChanged();
+    }
+
+    private async Task SavePassword()
+    {
+        if (string.IsNullOrWhiteSpace(newPassword))
+        {
+            passwordMessage = "Password cannot be empty.";
+            passwordMessageClass = "error";
+            return;
+        }
+
+        if (newPassword != confirmPassword)
+        {
+            passwordMessage = "Passwords do not match.";
+            passwordMessageClass = "error";
+            return;
+        }
+
+        if (newPassword.Length < 4)
+        {
+            passwordMessage = "Password must be at least 4 characters long.";
+            passwordMessageClass = "error";
+            return;
+        }
+
+        settings.PasswordHash = HashPassword(newPassword);
+        settings.PasswordEnabled = true;
+        await DatabaseService.SaveSettingsAsync(settings);
+
+        passwordMessage = "Password set successfully!";
+        passwordMessageClass = "success";
+
+        newPassword = string.Empty;
+        confirmPassword = string.Empty;
+        showPasswordSetup = false;
+        passwordVerified = false;
+
+        StateHasChanged();
+    }
+
+    private string HashPassword(string password)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(bytes);
+        }
+    }
+
+    private async Task ClearAllData()
+    {
+        var confirmed = await JSRuntime.InvokeAsync<bool>("confirm",
+            "Are you sure you want to delete ALL journal data? This cannot be undone!");
+
+        if (confirmed)
+        {
+            var doubleConfirm = await JSRuntime.InvokeAsync<bool>("confirm",
+                "This is your last warning! All entries, tags, and settings will be permanently deleted. Continue?");
+
+            if (doubleConfirm)
+            {
+                // This would require implementing delete methods in DatabaseService
+                // For now, show a message
+                statusMessage = "Data clearing feature will be implemented with proper backup mechanism.";
+                statusClass = "error";
+            }
+        }
+    }
+}

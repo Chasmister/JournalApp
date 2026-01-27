@@ -20,6 +20,7 @@ namespace JournalAppNeww
 #if DEBUG
     		builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Services.AddSingleton<DatabaseService>();
+            builder.Services.AddSingleton<ThemeService>();
             builder.Logging.AddDebug();
 #endif
 

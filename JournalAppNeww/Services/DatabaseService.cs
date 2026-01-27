@@ -21,6 +21,7 @@ namespace JournalAppNeww.Services
             await _database.CreateTableAsync<JournalEntry>();
             await _database.CreateTableAsync<Tag>();
             await _database.CreateTableAsync<EntryTag>();
+            await _database.CreateTableAsync<AppSettings>();
         }
 
         // ===== JOURNAL ENTRIES =====
@@ -166,5 +167,28 @@ namespace JournalAppNeww.Services
             await _database.Table<EntryTag>()
                 .DeleteAsync(et => et.JournalEntryId == entryId);
         }
+
+        // ===== APP SETTINGS =====
+        public async Task<AppSettings> GetSettingsAsync()
+        {
+            await Init();
+            var settings = await _database.Table<AppSettings>().FirstOrDefaultAsync();
+
+            if (settings == null)
+            {
+                settings = new AppSettings();
+                await _database.InsertAsync(settings);
+            }
+
+            return settings;
+        }
+
+        public async Task<int> SaveSettingsAsync(AppSettings settings)
+        {
+            await Init();
+            return await _database.UpdateAsync(settings);
+        }
     }
+
+
 }
