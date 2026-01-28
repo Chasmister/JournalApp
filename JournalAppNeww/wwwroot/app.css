@@ -3,15 +3,20 @@ html, body {
     margin: 0;
     padding: 0;
     height: 100%;
-    background-color: #f5f5f5;
+    background-color: var(--background-color);
+    color: var(--text-color);
+}
+
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, p, span, div, li, td, th, label, input, select, textarea, button, a {
+    color: var(--text-color);
 }
 
 a {
-    color: #0077cc;
+    color: var(--primary-color);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
-    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+    box-shadow: 0 0 0 0.1rem var(--card-background), 0 0 0 0.25rem var(--primary-color);
 }
 
 .content {
@@ -52,8 +57,7 @@ a {
 }
 
 .sidebar {
-    background: #2c3e50 !important;
-    background-image: none !important;
+    background-color: var(--sidebar-color);
     width: 250px;
     height: 100vh;
     position: fixed;
@@ -61,15 +65,16 @@ a {
     top: 0;
     overflow-y: auto;
     box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+    color: var(--sidebar-text-color);
 }
 .sidebar-header {
     padding: 20px;
-    background-color: #34495e;
-    border-bottom: 1px solid #1a252f;
+    background-color: rgba(0,0,0,0.1);
+    border-bottom: 1px solid var(--sidebar-border-color, #1a252f);
 }
 
     .sidebar-header h3 {
-        color: white;
+        color: var(--sidebar-text-color, white);
         margin: 0;
         font-size: 20px;
         font-weight: 600;
@@ -85,8 +90,8 @@ main {
 }
 
 .top-row {
-    background-color: #f8f9fa;
-    border-bottom: 1px solid #e0e0e0;
+    background-color: var(--card-background);
+    border-bottom: 1px solid var(--border-color);
     height: 3.5rem;
     display: flex;
     align-items: center;
@@ -163,7 +168,7 @@ main {
 
     .entry-header h2 {
         margin: 0;
-        color: #333;
+        color: var(--text-color);
     }
 
 .date-picker {
@@ -174,20 +179,23 @@ main {
 }
 
 .entry-form {
-    background: white;
+    background: var(--card-background);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: var(--text-color);
 }
 
 .entry-title {
     width: 100%;
     padding: 12px;
     font-size: 18px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
     margin-bottom: 15px;
     box-sizing: border-box;
+    background-color: var(--background-color);
+    color: var(--text-color);
 }
 
 .editor-container {
@@ -276,16 +284,18 @@ main {
 
 /* ===== MOOD TRACKING ===== */
 .mood-section {
-    background: #f8f9fa;
+    background: var(--background-color);
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
+    color: var(--text-color);
 }
 
     .mood-section h4 {
         margin-top: 0;
         margin-bottom: 15px;
         color: #333;
+
     }
 
 .mood-primary, .mood-secondary {
@@ -296,7 +306,7 @@ main {
         display: block;
         font-weight: 500;
         margin-bottom: 10px;
-        color: #555;
+        color: var(--text-color);
     }
 
 .mood-options {
@@ -310,8 +320,8 @@ main {
     flex-direction: column;
     align-items: center;
     padding: 12px 16px;
-    background: white;
-    border: 2px solid #e0e0e0;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -343,22 +353,23 @@ main {
 
 .mood-name {
     font-size: 13px;
-    color: #333;
+    color: var(--text-color);
     font-weight: 500;
 }
 
 /* ===== TAG SECTION ===== */
 .tag-section {
-    background: #f8f9fa;
+    background: var(--background-color);
     padding: 20px;
     border-radius: 8px;
     margin-bottom: 20px;
+    color: var(--text-color);
 }
 
     .tag-section h4 {
         margin-top: 0;
         margin-bottom: 15px;
-        color: #333;
+        
     }
 
 .tag-input-container {
@@ -409,8 +420,8 @@ main {
 .tag-item {
     display: inline-block;
     padding: 8px 16px;
-    background: white;
-    border: 2px solid #e0e0e0;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
     border-radius: 20px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -428,7 +439,7 @@ main {
     }
 
 .tag-name {
-    color: #333;
+    color: var(--text-color);
 }
 
 .selected-tags-display {
@@ -441,7 +452,7 @@ main {
         display: block;
         font-weight: 500;
         margin-bottom: 10px;
-        color: #555;
+        color: var(--text-color);
     }
 
 .selected-tags {
@@ -492,7 +503,7 @@ main {
 
     .calendar-header h2 {
         margin: 0;
-        color: #333;
+        color: var(--text-color);
     }
 
 .calendar-navigation {
@@ -505,7 +516,7 @@ main {
         margin: 0;
         min-width: 200px;
         text-align: center;
-        color: #333;
+        color: var(--text-color);
     }
 
 .btn-nav {
@@ -526,7 +537,7 @@ main {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     gap: 10px;
-    background: white;
+    background: var(--card-background);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -536,19 +547,19 @@ main {
     text-align: center;
     font-weight: 600;
     padding: 10px;
-    background-color: #f8f9fa;
+    background-color: var(--background-color);
     border-radius: 4px;
-    color: #333;
+    color: var(--text-color);
 }
 
 .calendar-day {
     aspect-ratio: 1;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     padding: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
-    background: white;
+    background: var(--card-background);
     position: relative;
     display: flex;
     flex-direction: column;
@@ -582,7 +593,7 @@ main {
 .day-number {
     font-size: 16px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-color);
     margin-bottom: 4px;
 }
 
@@ -598,7 +609,8 @@ main {
 .day-preview {
     margin-top: auto;
     font-size: 11px;
-    color: #666;
+    color: var(--text-color);
+    opacity: 0.8;
 }
 
 .preview-title {
@@ -612,6 +624,7 @@ main {
 .preview-mood {
     font-size: 16px;
     text-align: center;
+    color: var(--text-color);
 }
 
 .calendar-legend {
@@ -620,7 +633,7 @@ main {
     gap: 30px;
     margin-top: 20px;
     padding: 15px;
-    background: white;
+    background: var(--card-background);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -630,7 +643,7 @@ main {
     align-items: center;
     gap: 8px;
     font-size: 14px;
-    color: #666;
+    
 }
 
 .legend-dot {
@@ -650,13 +663,14 @@ main {
 
     .dashboard-header h1 {
         margin: 0 0 10px 0;
-        color: #333;
+        color: var(--text-color);
         font-size: 32px;
     }
 
     .dashboard-header .subtitle {
         margin: 0;
-        color: #666;
+        color: var(--text-color);
+        opacity: 0.8;
         font-size: 18px;
     }
 
@@ -669,7 +683,7 @@ main {
 }
 
 .stat-card {
-    background: white;
+    background: var(--card-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -692,18 +706,19 @@ main {
 .stat-content h3 {
     margin: 0 0 5px 0;
     font-size: 32px;
-    color: #333;
+    color: var(--text-color);
 }
 
 .stat-content p {
     margin: 0;
-    color: #666;
+    color: var(--text-color);
+    opacity: 0.8;
     font-size: 14px;
 }
 
 /* Quick Actions */
 .quick-actions {
-    background: white;
+    background: var(--card-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -712,7 +727,7 @@ main {
 
     .quick-actions h3 {
         margin: 0 0 20px 0;
-        color: #333;
+        color: var(--text-color);
     }
 
 .action-buttons {
@@ -726,13 +741,13 @@ main {
     align-items: center;
     gap: 12px;
     padding: 15px 20px;
-    background: #f8f9fa;
-    border: 2px solid #e0e0e0;
+    background: var(--background-color);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 15px;
-    color: #333;
+    color: var(--text-color);
     font-weight: 500;
 }
 
@@ -750,7 +765,7 @@ main {
 
 /* Recent Entries */
 .recent-entries {
-    background: white;
+    background: var(--card-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -758,7 +773,7 @@ main {
 
     .recent-entries h3 {
         margin: 0 0 20px 0;
-        color: #333;
+        color: var(--text-color);
     }
 
 .entries-list {
@@ -769,7 +784,7 @@ main {
 
 .entry-card {
     padding: 20px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -790,7 +805,7 @@ main {
 
     .entry-card-header h4 {
         margin: 0;
-        color: #333;
+        color: var(--text-color);
         font-size: 16px;
     }
 
@@ -806,7 +821,8 @@ main {
 }
 
 .entry-preview {
-    color: #666;
+    color: var(--text-color);
+    opacity: 0.8;
     font-size: 14px;
     line-height: 1.5;
     margin-bottom: 10px;
@@ -826,7 +842,7 @@ main {
 
     .empty-state p {
         font-size: 18px;
-        color: #666;
+        
         margin-bottom: 20px;
     }
 
@@ -849,11 +865,11 @@ main {
 
     .entries-header h2 {
         margin: 0;
-        color: #333;
+        
     }
 
 .entries-info {
-    color: #666;
+    
     font-size: 14px;
 }
 
@@ -865,7 +881,7 @@ main {
 }
 
 .entry-item {
-    background: white;
+    background: var(--card-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -893,7 +909,7 @@ main {
 
     .entry-date-mood h3 {
         margin: 0;
-        color: #333;
+        
         font-size: 18px;
     }
 
@@ -909,7 +925,7 @@ main {
 
 .mood-label {
     font-size: 14px;
-    color: #666;
+    
     font-weight: 500;
 }
 
@@ -921,7 +937,7 @@ main {
 }
 
 .entry-item-content {
-    color: #666;
+    
     font-size: 15px;
     line-height: 1.6;
     margin-bottom: 15px;
@@ -984,7 +1000,7 @@ main {
     align-items: center;
     gap: 15px;
     padding: 20px;
-    background: white;
+    background: var(--card-background);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -1014,7 +1030,7 @@ main {
     align-items: center;
     gap: 15px;
     font-size: 14px;
-    color: #666;
+    
 }
 
 .page-size-select {
@@ -1029,7 +1045,7 @@ main {
 .empty-state {
     text-align: center;
     padding: 60px 20px;
-    background: white;
+    background: var(--card-background);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
@@ -1041,20 +1057,19 @@ main {
 
 .empty-state h3 {
     margin: 0 0 10px 0;
-    color: #333;
     font-size: 24px;
 }
 
 .empty-state p {
     margin: 0 0 25px 0;
-    color: #666;
+    
     font-size: 16px;
 }
 
 
 /* ===== SEARCH & FILTER ===== */
 .search-filter-section {
-    background: white;
+    background: var(--card-background);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -1100,7 +1115,7 @@ main {
 }
 
     .clear-search-btn:hover {
-        color: #333;
+        
     }
 
 .filter-controls {
@@ -1114,13 +1129,13 @@ main {
     align-items: center;
     gap: 8px;
     padding: 10px 16px;
-    background-color: #f8f9fa;
-    border: 2px solid #e0e0e0;
+    background-color: var(--background-color);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
-    color: #333;
+    color: var(--text-color);
     transition: all 0.3s ease;
 }
 
@@ -1168,7 +1183,7 @@ main {
         display: block;
         font-weight: 600;
         margin-bottom: 10px;
-        color: #333;
+        
         font-size: 14px;
     }
 
@@ -1198,8 +1213,8 @@ main {
     align-items: center;
     gap: 6px;
     padding: 8px 12px;
-    background: #f8f9fa;
-    border: 2px solid #e0e0e0;
+    background: var(--background-color);
+    border: 2px solid var(--border-color);
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -1245,18 +1260,18 @@ mark {
 
     .analytics-header h2 {
         margin: 0 0 8px 0;
-        color: #333;
+        
         font-size: 32px;
     }
 
     .analytics-header .subtitle {
         margin: 0;
-        color: #666;
+        
         font-size: 16px;
     }
 
 .analytics-section {
-    background: white;
+    background: var(--card-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -1265,13 +1280,13 @@ mark {
 
     .analytics-section h3 {
         margin: 0 0 20px 0;
-        color: #333;
+        
         font-size: 22px;
     }
 
     .analytics-section h4 {
         margin: 0 0 15px 0;
-        color: #555;
+      
         font-size: 16px;
     }
 
@@ -1288,9 +1303,9 @@ mark {
     align-items: center;
     gap: 15px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
 }
 
     .streak-card.highlight {
@@ -1355,7 +1370,7 @@ mark {
     align-items: center;
     gap: 5px;
     font-size: 12px;
-    color: #666;
+    
 }
 
 .legend-cell {
@@ -1374,7 +1389,7 @@ mark {
 
 .mood-stat-card {
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
 }
 
@@ -1392,7 +1407,7 @@ mark {
 .mood-name {
     font-size: 16px;
     font-weight: 600;
-    color: #333;
+    color: var(--text-color);
 }
 
 .mood-stat-bar {
@@ -1413,7 +1428,7 @@ mark {
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    color: #666;
+    
 }
 
 .mood-count {
@@ -1422,7 +1437,7 @@ mark {
 
 .mood-percentage {
     font-weight: 600;
-    color: #333;
+    
 }
 
 /* Insight Cards */
@@ -1456,21 +1471,21 @@ mark {
 .stat-box {
     text-align: center;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
-    border: 2px solid #e0e0e0;
+    border: 2px solid var(--border-color);
 }
 
 .stat-number {
     font-size: 36px;
     font-weight: 700;
-    color: #333;
+    color: var(--text-color);
     margin-bottom: 8px;
 }
 
 .stat-label {
     font-size: 14px;
-    color: #666;
+    
 }
 
 /* Trend Chart */
@@ -1484,7 +1499,7 @@ mark {
     gap: 8px;
     height: 200px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
 }
 
@@ -1507,7 +1522,7 @@ mark {
 .chart-label {
     margin-top: 8px;
     font-size: 11px;
-    color: #666;
+    
 }
 
 /* Tag Usage */
@@ -1520,14 +1535,14 @@ mark {
 
 .tag-usage-card {
     padding: 15px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
 }
 
 .tag-usage-name {
     font-size: 15px;
     font-weight: 600;
-    color: #333;
+    
     margin-bottom: 10px;
     padding-left: 12px;
 }
@@ -1549,17 +1564,63 @@ mark {
     display: flex;
     justify-content: space-between;
     font-size: 13px;
-    color: #666;
+    
 }
 
 /* ===== CSS VARIABLES FOR THEMING ===== */
 :root {
+    /* Default Light Theme */
     --primary-color: #007bff;
     --background-color: #f5f5f5;
-    --sidebar-color: #2c3e50;
-    --text-color: #333333;
+    --sidebar-color: #ffffff;
+    --sidebar-text-color: #333333;
+    --sidebar-active-bg: rgba(0,0,0,0.1);
+    --sidebar-hover-bg: rgba(0,0,0,0.05);
+    --sidebar-active-text: #000000;
+    --sidebar-border-color: rgba(0,0,0,0.1);
+    --text-color:  #333333;
     --card-background: #ffffff;
     --border-color: #e0e0e0;
+    --icon-filter: invert(1);
+}
+
+[data-theme="dark"] {
+    --primary-color: #00bcd4;
+    --background-color: #002b36;
+    --sidebar-color: #00222b;
+    --sidebar-text-color: #e0f7fa;
+    --sidebar-active-bg: rgba(255,255,255,0.15);
+    --sidebar-hover-bg: rgba(255,255,255,0.05);
+    --sidebar-active-text: #ffffff;
+    --sidebar-border-color: rgba(255,255,255,0.1);
+    --text-color: #f0fdff; /* Extremely light turquoise */
+    --card-background: #003847;
+    --border-color: #005f6b;
+    --icon-filter: none;
+
+    /* Bootstrap Overrides for Dark Mode */
+    --bs-body-color: var(--text-color);
+    --bs-body-bg: var(--background-color);
+    --bs-heading-color: var(--text-color);
+    --bs-link-color: var(--primary-color);
+    --bs-link-hover-color: var(--primary-color);
+    --bs-card-bg: var(--card-background);
+    --bs-card-color: var(--text-color);
+
+    /* Specific Text Overrides for Dark Mode */
+    .subtitle, .section-description, .stat-label, .mood-name, .tag-name, .entry-title, 
+    .entries-info, .mood-checkbox-label, .tag-checkbox-label, .entry-item-meta, 
+    .chart-label, .heatmap-legend, .insight-card p, .empty-state p, .mood-options label,
+    .mood-section h4, .tag-section h4, .tag-selection label, .selected-tags-display label,
+    .analytics-header p, .streak-content p, .mood-stat-info, .tag-usage-info {
+        color: var(--text-color) !important;
+        opacity: 0.9;
+    }
+    
+    .text-muted {
+        color: var(--text-color) !important; 
+        opacity: 0.7;
+    }
 }
 
 /* ===== SETTINGS PAGE ===== */
@@ -1575,18 +1636,18 @@ mark {
 
     .settings-header h2 {
         margin: 0 0 8px 0;
-        color: #333;
+        
         font-size: 32px;
     }
 
     .settings-header .subtitle {
         margin: 0;
-        color: #666;
+        
         font-size: 16px;
     }
 
 .settings-section {
-    background: white;
+    background: var(--card-background);
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -1595,13 +1656,13 @@ mark {
 
     .settings-section h3 {
         margin: 0 0 8px 0;
-        color: #333;
+        
         font-size: 22px;
     }
 
 .section-description {
     margin: 0 0 20px 0;
-    color: #666;
+    
     font-size: 14px;
 }
 
@@ -1676,20 +1737,20 @@ mark {
 .theme-name {
     font-size: 15px;
     font-weight: 600;
-    color: #333;
+   
 }
 
 /* Custom Theme Editor */
 .custom-theme-editor {
     margin-top: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
 }
 
     .custom-theme-editor h4 {
         margin: 0 0 15px 0;
-        color: #333;
+        
     }
 
 .color-inputs {
@@ -1721,7 +1782,7 @@ mark {
 
 .color-value {
     font-size: 13px;
-    color: #666;
+   
     font-family: monospace;
 }
 
@@ -1746,19 +1807,19 @@ mark {
 
 .toggle-text {
     font-weight: 500;
-    color: #333;
+    
 }
 
 .password-setup {
     margin-top: 20px;
     padding: 20px;
-    background: #f8f9fa;
+    background: var(--background-color);
     border-radius: 8px;
 }
 
     .password-setup h4 {
         margin: 0 0 15px 0;
-        color: #333;
+       
     }
 
 .form-group {
@@ -1826,7 +1887,7 @@ mark {
 .stat-value {
     font-weight: 700;
     font-size: 18px;
-    color: #333;
+    
 }
 
 .data-actions {
@@ -1860,13 +1921,13 @@ mark {
 
     .export-header h2 {
         margin: 0 0 8px 0;
-        color: #333;
+        
         font-size: 32px;
     }
 
     .export-header .subtitle {
         margin: 0;
-        color: #666;
+        
         font-size: 16px;
     }
 
@@ -1884,7 +1945,7 @@ mark {
 
     .form-section h3 {
         margin: 0 0 15px 0;
-        color: #333;
+        
         font-size: 18px;
     }
 
@@ -1981,14 +2042,14 @@ mark {
 
     .export-info h4 {
         margin: 0 0 15px 0;
-        color: #333;
+        
         font-size: 16px;
     }
 
     .export-info ul {
         margin: 0;
         padding-left: 20px;
-        color: #666;
+       
         line-height: 1.8;
     }
 
@@ -2002,8 +2063,3 @@ mark {
     border: 1px solid #bee5eb;
 }
 
-.page .sidebar {
-    background: #2c3e50 !important;
-    background-image: none !important;
-    background-color: #2c3e50 !important;
-}

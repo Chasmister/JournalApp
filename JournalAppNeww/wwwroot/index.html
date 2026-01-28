@@ -16,33 +16,29 @@
         function applyTheme(theme, primaryColor, backgroundColor, sidebarColor, textColor) {
             const root = document.documentElement;
 
-            if (theme === 'dark') {
-                root.style.setProperty('--primary-color', '#4a9eff');
-                root.style.setProperty('--background-color', '#1a1a1a');
-                root.style.setProperty('--sidebar-color', '#2d2d2d');
-                root.style.setProperty('--text-color', '#e0e0e0');
-                root.style.setProperty('--card-background', '#2d2d2d');
-                root.style.setProperty('--border-color', '#404040');
-                document.body.classList.add('dark-theme');
-                document.body.classList.remove('light-theme');
-            } else if (theme === 'custom') {
+            if (theme === 'custom') {
+                root.setAttribute('data-theme', 'custom');
                 root.style.setProperty('--primary-color', primaryColor);
                 root.style.setProperty('--background-color', backgroundColor);
                 root.style.setProperty('--sidebar-color', sidebarColor);
                 root.style.setProperty('--text-color', textColor);
-                root.style.setProperty('--card-background', backgroundColor);
-                root.style.setProperty('--border-color', '#e0e0e0');
-                document.body.classList.remove('dark-theme', 'light-theme');
+                // Assume custom theme uses dark sidebar logic for now or derive it
+                root.style.setProperty('--card-background', backgroundColor); 
+                root.style.setProperty('--icon-filter', 'none');
+                
+                // Reset standard variables overridden by data-theme if needed, 
+                // but since we set data-theme='custom', the CSS selector [data-theme='dark'] won't apply.
             } else {
-                // Light theme (default)
-                root.style.setProperty('--primary-color', '#007bff');
-                root.style.setProperty('--background-color', '#f5f5f5');
-                root.style.setProperty('--sidebar-color', '#2c3e50');
-                root.style.setProperty('--text-color', '#333333');
-                root.style.setProperty('--card-background', '#ffffff');
-                root.style.setProperty('--border-color', '#e0e0e0');
-                document.body.classList.add('light-theme');
-                document.body.classList.remove('dark-theme');
+                // Clear inline styles that might interfere
+                root.style.removeProperty('--primary-color');
+                root.style.removeProperty('--background-color');
+                root.style.removeProperty('--sidebar-color');
+                root.style.removeProperty('--text-color');
+                root.style.removeProperty('--card-background');
+                root.style.removeProperty('--icon-filter');
+                
+                // Set the theme attribute
+                root.setAttribute('data-theme', theme);
             }
         }
     </script>

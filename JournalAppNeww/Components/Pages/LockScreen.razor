@@ -1,0 +1,139 @@
+@using JournalAppNeww.Services
+@using System.Security.Cryptography
+@using System.Text
+@inject DatabaseService DatabaseService
+
+<div class="lock-screen">
+    <div class="lock-content">
+        <div class="lock-icon">🔒</div>
+        <h2>Journal Locked</h2>
+        <p>Please enter your password to continue</p>
+
+        <div class="form-group">
+            <input type="password" 
+                   class="form-input" 
+                   @bind="password" 
+                   @onkeyup="HandleKeyUp"
+                   placeholder="Enter password" />
+        </div>
+
+        <button class="btn btn-primary" @onclick="VerifyPassword">Unlock</button>
+
+        @if (!string.IsNullOrEmpty(errorMessage))
+        {
+            <div class="error-message">@errorMessage</div>
+        }
+    </div>
+</div>
+
+<style>
+    .lock-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: var(--background-color);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+    }
+
+    .lock-content {
+        background-color: var(--card-background);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        width: 90%;
+        max-width: 400px;
+        border: 1px solid var(--border-color);
+    }
+
+    .lock-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    .form-group {
+        margin: 1.5rem 0;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        background-color: var(--background-color);
+        color: var(--text-color);
+        font-size: 1rem;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 0.75rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.2s;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        color: white;
+    }
+
+    .error-message {
+        color: #dc3545;
+        margin-top: 1rem;
+        font-size: 0.9rem;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public EventCallback OnUnlocked { get; set; }
+
+    private string password = "";
+    private string errorMessage = "";
+    private string storedHash = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var settings = await DatabaseService.GetSettingsAsync();
+        storedHash = settings.PasswordHash;
+    }
+
+    private async Task VerifyPassword()
+    {
+        if (HashPassword(password) == storedHash)
+        {
+            errorMessage = "";
+            await OnUnlocked.InvokeAsync();
+        }
+        else
+        {
+            errorMessage = "Incorrect password";
+            password = "";
+        }
+    }
+
+    private void HandleKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            _ = VerifyPassword();
+        }
+    }
+
+    private string HashPassword(string password)
+    {
+        using (SHA256 sha256 = SHA256.Create())
+        {
+            byte[] bytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
+            return Convert.ToBase64String(bytes);
+        }
+    }
+}

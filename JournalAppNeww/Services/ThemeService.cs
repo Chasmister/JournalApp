@@ -68,9 +68,9 @@ namespace JournalAppNeww.Services
                     _currentSettings.SidebarColor,
                     _currentSettings.TextColor);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // JS not ready yet, will be applied on next call
+                Console.WriteLine($"Error applying theme: {ex.Message}");
             }
         }
 
