@@ -23,6 +23,11 @@ a {
     padding-top: 1.1rem;
 }
 
+article.content {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
 .valid.modified:not([type=checkbox]) {
     outline: 1px solid #26b050;
 }
@@ -152,9 +157,34 @@ main {
 
 /* ===== JOURNAL ENTRY PAGE ===== */
 .journal-entry-page {
-    max-width: 900px;
+    max-width: 1400px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 15px;
+}
+
+.entry-form-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr;
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.entry-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.entry-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+@media (max-width: 1024px) {
+    .entry-form-grid {
+        grid-template-columns: 1fr;
+    }
 }
 
 .entry-header {
@@ -217,7 +247,7 @@ main {
 }
 
 .btn-primary {
-    background-color: #007bff;
+    background-color: #00C4C1;
     color: white;
 }
 
@@ -319,7 +349,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 16px;
+    padding: 8px 12px;
     background: var(--card-background);
     border: 2px solid var(--border-color);
     border-radius: 8px;
@@ -329,14 +359,14 @@ main {
 }
 
     .mood-item:hover {
-        border-color: #007bff;
+        border-color: #00C4C1;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
 
     .mood-item.selected {
-        border-color: #007bff;
-        background-color: #e7f3ff;
+        border-color: #00C4C1;
+        background-color: #00C4C1;
         box-shadow: 0 4px 8px rgba(0,123,255,0.2);
     }
 
@@ -347,12 +377,12 @@ main {
     }
 
 .mood-emoji {
-    font-size: 32px;
-    margin-bottom: 5px;
+    font-size: 28px;
+    margin-bottom: 4px;
 }
 
 .mood-name {
-    font-size: 13px;
+    font-size: 12px;
     color: var(--text-color);
     font-weight: 500;
 }
@@ -465,7 +495,7 @@ main {
     display: inline-flex;
     align-items: center;
     padding: 6px 12px;
-    background-color: #007bff;
+    background-color: #00C4C1;
     color: white;
     border-radius: 20px;
     font-size: 13px;
@@ -487,16 +517,18 @@ main {
 
 /* ===== CALENDAR PAGE ===== */
 .calendar-page {
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 20px;
+    padding: 15px;
 }
 
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
     padding-bottom: 15px;
     border-bottom: 2px solid #e0e0e0;
 }
@@ -521,10 +553,9 @@ main {
 
 .btn-nav {
     padding: 8px 16px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 4px;
+    color: #00BEBB;
+    border: solid 1px #00BEBB;
+    border-radius: 10px;
     cursor: pointer;
     font-size: 14px;
 }
@@ -536,37 +567,62 @@ main {
 .calendar-grid {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 10px;
+    gap: 8px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow: hidden;
     background: var(--card-background);
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 4px;
+    }
+}
+
 .calendar-day-header {
     text-align: center;
     font-weight: 600;
-    padding: 10px;
-    background-color: var(--background-color);
+    padding: 8px 4px;
+    background-color: var(--card-background);
     border-radius: 4px;
+    font-size: 14px;
     color: var(--text-color);
 }
 
+@media (max-width: 768px) {
+    .calendar-day-header {
+        padding: 6px 2px;
+        font-size: 12px;
+    }
+}
+
 .calendar-day {
-    aspect-ratio: 1;
-    border: 2px solid var(--border-color);
-    border-radius: 8px;
+    min-height: 80px;
     padding: 8px;
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    background: var(--card-background);
-    position: relative;
+    transition: all 0.2s;
     display: flex;
     flex-direction: column;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 60px;
+        padding: 4px;
+        font-size: 12px;
+    }
 }
 
     .calendar-day:hover {
-        border-color: #007bff;
+        border-color: #00C4C1;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
     }
@@ -575,19 +631,19 @@ main {
         opacity: 0.3;
     }
 
-    .calendar-day.today {
-        border-color: #28a745;
-        background-color: #e7f9ec;
-    }
+.calendar-day.today {
+    border-color: #28a745;
+    background-color: #00BEBB;
+}
 
     .calendar-day.selected {
         border-color: #6c757d;
-        background-color: #f8f9fa;
+        
     }
 
     .calendar-day.has-entry {
-        border-color: #007bff;
-        background-color: #e7f3ff;
+        border-color: #00C4C1;
+        
     }
 
 .day-number {
@@ -602,7 +658,7 @@ main {
 }
 
     .entry-indicator .dot {
-        color: #007bff;
+        color: #00C4C1;
         font-size: 20px;
     }
 
@@ -752,8 +808,8 @@ main {
 }
 
     .action-btn:hover {
-        background: #007bff;
-        border-color: #007bff;
+        background: #00C4C1;
+        border-color: #00C4C1;
         color: white;
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0,123,255,0.3);
@@ -791,7 +847,7 @@ main {
 }
 
     .entry-card:hover {
-        border-color: #007bff;
+        border-color: #00C4C1;
         background-color: #f8f9fa;
         transform: translateX(5px);
     }
@@ -815,7 +871,7 @@ main {
 
 .entry-title {
     font-weight: 600;
-    color: #007bff;
+    color: #00C4C1;
     margin-bottom: 8px;
     font-size: 15px;
 }
@@ -887,7 +943,7 @@ main {
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     cursor: pointer;
     transition: all 0.3s ease;
-    border-left: 4px solid #007bff;
+   
 }
 
     .entry-item:hover {
@@ -931,7 +987,7 @@ main {
 
 .entry-item-title {
     margin: 0;
-    color: #007bff;
+    color: #00C4C1;
     font-size: 20px;
     font-weight: 600;
 }
@@ -953,18 +1009,18 @@ main {
 
     .secondary-moods .label {
         font-size: 13px;
-        color: #999;
+        
         font-weight: 500;
     }
 
 .secondary-mood-badge {
     display: inline-block;
     padding: 4px 10px;
-    background-color: #e7f3ff;
-    border: 1px solid #b3d9ff;
+    background-color: var(--background-color);
+    border: 1px solid #b3d9ff10;
     border-radius: 12px;
     font-size: 13px;
-    color: #0056b3;
+    color: #00BEBB;
 }
 
 .entry-tags {
@@ -977,7 +1033,7 @@ main {
 .tag-badge-small {
     display: inline-block;
     padding: 4px 10px;
-    background-color: #007bff;
+    background-color: #00C4C1;
     color: white;
     border-radius: 12px;
     font-size: 12px;
@@ -1007,7 +1063,7 @@ main {
 
 .pagination-btn {
     padding: 8px 16px;
-    background-color: #007bff;
+    background-color: #00C4C1;
     color: white;
     border: none;
     border-radius: 4px;
@@ -1093,7 +1149,7 @@ main {
 
     .search-input:focus {
         outline: none;
-        border-color: #007bff;
+        border-color: #00C4C1;
     }
 
 .clear-search-btn {
@@ -1141,11 +1197,11 @@ main {
 
     .filter-toggle-btn:hover {
         background-color: #e9ecef;
-        border-color: #007bff;
+        border-color: #00C4C1;
     }
 
 .active-filter-badge {
-    background-color: #007bff;
+    background-color: #00C4C1;
     color: white;
     padding: 2px 8px;
     border-radius: 12px;
@@ -1224,7 +1280,7 @@ main {
     .mood-checkbox-label:hover,
     .tag-checkbox-label:hover {
         background-color: #e9ecef;
-        border-color: #007bff;
+        border-color: #00C4C1;
     }
 
     .mood-checkbox-label input[type="checkbox"],
@@ -1309,9 +1365,9 @@ mark {
 }
 
     .streak-card.highlight {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: linear-gradient(135deg, #00BEBB 0%, #00A5A2 100%);
         color: white;
-        border-color: #667eea;
+        border-color: #00DEDB;
     }
 
 .streak-icon {
@@ -1420,7 +1476,7 @@ mark {
 
 .mood-stat-fill {
     height: 100%;
-    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #00BEBB 0%, #00A5A2 100%);
     transition: width 0.3s ease;
 }
 
@@ -1444,7 +1500,7 @@ mark {
 .insight-card {
     margin-top: 20px;
     padding: 15px 20px;
-    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    background: linear-gradient(135deg, #00BEBB 0%, #00A5A2 100%);
     color: white;
     border-radius: 8px;
 }
@@ -1513,7 +1569,7 @@ mark {
 
 .chart-bar {
     width: 100%;
-    background-color: #007bff;
+    background-color: #00BEBB;
     border-radius: 4px 4px 0 0;
     transition: height 0.3s ease;
     min-height: 2px;
@@ -1549,7 +1605,7 @@ mark {
 
 .tag-usage-bar {
     height: 20px;
-    background-color: #e0e0e0;
+    background-color: #00BEBB;
     border-radius: 10px;
     overflow: hidden;
     margin-bottom: 8px;
@@ -1570,7 +1626,7 @@ mark {
 /* ===== CSS VARIABLES FOR THEMING ===== */
 :root {
     /* Default Light Theme */
-    --primary-color: #007bff;
+    --primary-color: #00C4C1;
     --background-color: #f5f5f5;
     --sidebar-color: #ffffff;
     --sidebar-text-color: #333333;
@@ -1620,6 +1676,48 @@ mark {
     .text-muted {
         color: var(--text-color) !important; 
         opacity: 0.7;
+    }
+
+    /* Input Field Theming for Dark Mode */
+    input[type="text"],
+    input[type="date"],
+    input[type="password"],
+    input[type="email"],
+    input[type="number"],
+    input[type="search"],
+    textarea,
+    select,
+    .tag-input,
+    .search-input,
+    .date-picker,
+    .entry-title,
+    .form-control {
+        background-color: var(--card-background) !important;
+        color: var(--text-color) !important;
+        border-color: var(--border-color) !important;
+    }
+
+    input[type="text"]::placeholder,
+    input[type="date"]::placeholder,
+    input[type="password"]::placeholder,
+    input[type="email"]::placeholder,
+    input[type="search"]::placeholder,
+    textarea::placeholder,
+    .tag-input::placeholder,
+    .search-input::placeholder {
+        color: var(--text-color) !important;
+        opacity: 0.5;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus,
+    input[type="password"]:focus,
+    input[type="search"]:focus,
+    textarea:focus,
+    select:focus {
+        background-color: var(--card-background) !important;
+        border-color: var(--primary-color) !important;
+        color: var(--text-color) !important;
     }
 }
 
@@ -1684,12 +1782,12 @@ mark {
 }
 
     .theme-option:hover {
-        border-color: #007bff;
+        border-color: #00C4C1;
         transform: translateY(-4px);
     }
 
     .theme-option.selected {
-        border-color: #007bff;
+        border-color: #00C4C1;
         background-color: #e7f3ff;
     }
 
@@ -1876,7 +1974,7 @@ mark {
     padding: 15px;
     background: #f8f9fa;
     border-radius: 8px;
-    border-left: 4px solid #007bff;
+    border-left: 4px solid #00C4C1;
 }
 
 .stat-label {
@@ -1932,7 +2030,7 @@ mark {
     }
 
 .export-form {
-    background: white;
+    
     padding: 30px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -1965,7 +2063,7 @@ mark {
     .date-input-group label {
         font-size: 14px;
         font-weight: 500;
-        color: #555;
+       
     }
 
 .date-input {
@@ -1983,7 +2081,7 @@ mark {
 
 .quick-btn {
     padding: 8px 16px;
-    background-color: #f8f9fa;
+   background: var(--background-color);
     border: 2px solid #e0e0e0;
     border-radius: 6px;
     cursor: pointer;
@@ -1993,8 +2091,8 @@ mark {
 }
 
     .quick-btn:hover {
-        background-color: #e9ecef;
-        border-color: #007bff;
+        background-color: #00C4C1;
+        border-color: #00C4C1;
     }
 
 .export-options {
@@ -2034,7 +2132,7 @@ mark {
     }
 
 .export-info {
-    background: white;
+    
     padding: 25px;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
@@ -2063,3 +2161,40 @@ mark {
     border: 1px solid #bee5eb;
 }
 
+/* ===== QUILL EDITOR DARK MODE ===== */
+/* Dark mode styling for Quill editor toolbar */
+[data-theme="dark"] .ql-toolbar,
+[data-theme="dark"] .ql-container {
+    background-color: var(--card-background);
+    border-color: var(--border-color);
+}
+
+[data-theme="dark"] .ql-toolbar .ql-stroke {
+    stroke: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .ql-toolbar .ql-fill {
+    fill: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .ql-toolbar .ql-picker-label {
+    color: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .ql-toolbar button:hover .ql-stroke,
+[data-theme="dark"] .ql-toolbar button.ql-active .ql-stroke {
+    stroke: #00C4C1 !important;
+}
+
+[data-theme="dark"] .ql-toolbar button:hover .ql-fill,
+[data-theme="dark"] .ql-toolbar button.ql-active .ql-fill {
+    fill: #00C4C1 !important;
+}
+
+[data-theme="dark"] .ql-editor {
+    color: var(--text-color);
+}
+
+[data-theme="dark"] .ql-editor.ql-blank::before {
+    color: #888;
+}
