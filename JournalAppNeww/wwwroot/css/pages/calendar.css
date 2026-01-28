@@ -1,0 +1,186 @@
+/* Container for the full-page calendar view */
+.calendar-page {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 15px;
+}
+
+/* Navigation bar to move between months */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.calendar-header h2 {
+    margin: 0;
+    color: var(--text-color);
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.calendar-navigation h3 {
+    margin: 0;
+    min-width: 200px;
+    text-align: center;
+    color: var(--text-color);
+}
+
+/* The actual 7-column grid for the days of the month */
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+    max-width: 100%;
+    overflow: hidden;
+    background: var(--card-background);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* Compact the grid on mobile screens */
+@media (max-width: 768px) {
+    .calendar-grid {
+        gap: 4px;
+    }
+}
+
+/* Headers for Monday, Tuesday, etc. */
+.calendar-day-header {
+    text-align: center;
+    font-weight: 600;
+    padding: 8px 4px;
+    background-color: var(--card-background);
+    border-radius: 4px;
+    font-size: 14px;
+    color: var(--text-color);
+}
+
+@media (max-width: 768px) {
+    .calendar-day-header {
+        padding: 6px 2px;
+        font-size: 12px;
+    }
+}
+
+/* Individual day boxes in the calendar */
+.calendar-day {
+    min-height: 80px;
+    padding: 8px;
+    background-color: var(--card-background);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+@media (max-width: 768px) {
+    .calendar-day {
+        min-height: 60px;
+        padding: 4px;
+        font-size: 12px;
+    }
+}
+
+/* Lift the day box slightly when you hover over it */
+.calendar-day:hover {
+    border-color: #00C4C1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Dim the days that belong to the previous or next month */
+.calendar-day.other-month {
+    opacity: 0.3;
+}
+
+/* Bold highlight for today's date */
+.calendar-day.today {
+    border-color: #28a745;
+    background-color: #00BEBB;
+}
+
+.calendar-day.selected {
+    border-color: #6c757d;
+}
+
+/* Highlight days that have journal entries */
+.calendar-day.has-entry {
+    border-color: #00C4C1;
+}
+
+.day-number {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: 4px;
+}
+
+/* A little dot to quickly show an entry exists on this day */
+.entry-indicator {
+    text-align: center;
+}
+
+.entry-indicator .dot {
+    color: #00C4C1;
+    font-size: 20px;
+}
+
+/* Snippets of the entry shown inside the day box */
+.day-preview {
+    margin-top: auto;
+    font-size: 11px;
+    color: var(--text-color);
+    opacity: 0.8;
+}
+
+.preview-title {
+    font-weight: 500;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 2px;
+}
+
+.preview-mood {
+    font-size: 16px;
+    text-align: center;
+    color: var(--text-color);
+}
+
+/* Explains what the different colors and dots mean */
+.calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 20px;
+    padding: 15px;
+    background: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.legend-dot {
+    font-size: 20px;
+}

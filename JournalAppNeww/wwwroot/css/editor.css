@@ -1,0 +1,46 @@
+/* Customizing the Quill editor to match our theme in dark mode */
+[data-theme="dark"] .ql-toolbar,
+[data-theme="dark"] .ql-container {
+    background-color: var(--card-background);
+    border-color: var(--border-color);
+}
+
+/* Make the toolbar icons look good against a dark background */
+[data-theme="dark"] .ql-toolbar .ql-stroke {
+    stroke: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .ql-toolbar .ql-fill {
+    fill: #e0e0e0 !important;
+}
+
+[data-theme="dark"] .ql-toolbar .ql-picker-label {
+    color: #e0e0e0 !important;
+}
+
+/* Highlight icons in the editor when you hover or click them */
+[data-theme="dark"] .ql-toolbar button:hover .ql-stroke,
+[data-theme="dark"] .ql-toolbar button.ql-active .ql-stroke {
+    stroke: #00C4C1 !important;
+}
+
+[data-theme="dark"] .ql-toolbar button:hover .ql-fill,
+[data-theme="dark"] .ql-toolbar button.ql-active .ql-fill {
+    fill: #00C4C1 !important;
+}
+
+/* Default text color for the writing area */
+[data-theme="dark"] .ql-editor {
+    color: var(--text-color);
+}
+
+/* Subtle placeholder text for the editor */
+[data-theme="dark"] .ql-editor.ql-blank::before {
+    color: #888;
+}
+
+/* We prefer a cleaner look without the default borders around the editor */
+.ql-toolbar,
+.ql-container {
+    border-color: transparent !important;
+}

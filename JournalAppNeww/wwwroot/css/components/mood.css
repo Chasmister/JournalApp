@@ -1,0 +1,133 @@
+/* The container for the whole mood picking section */
+.mood-section {
+    background: var(--card-background);
+    padding: 0;
+    border-radius: 8px;
+    margin-bottom: 0;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+/* Allows the section to hide its content when collapsed */
+.mood-section.collapsible {
+    overflow: hidden;
+}
+
+/* The button you click to expand or hide the mood picker */
+.section-toggle-btn {
+    width: 100%;
+    padding: 15px 20px;
+    background: var(--card-background);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.section-toggle-btn:hover {
+    background: var(--background-color);
+}
+
+.toggle-icon {
+    font-size: 14px;
+    color: #00C4C1;
+    min-width: 20px;
+}
+
+/* Showing the emoji you just picked right on the main button */
+.selected-mood-preview {
+    margin-left: auto;
+    font-size: 24px;
+}
+
+/* The content area that slides down when you want to pick a mood */
+.mood-content {
+    padding: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.mood-section h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.mood-primary, .mood-secondary {
+    margin-bottom: 20px;
+}
+
+.mood-primary label, .mood-secondary label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+/* Spacing out the emoji options nicely */
+.mood-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Individual mood cards with emoji and name */
+.mood-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 8px 12px;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 80px;
+}
+
+/* Make it pop when you hover or select it */
+.mood-item:hover {
+    border-color: #00C4C1;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.mood-item.selected {
+    border-color: #00C4C1;
+    background-color: #00C4C1;
+    box-shadow: 0 4px 8px rgba(0,123,255,0.2);
+}
+
+.mood-item.secondary.selected {
+    border-color: #00BEBB;
+    background-color: #00BEBB;
+    box-shadow: 0 4px 8px rgba(40,167,69,0.2);
+}
+
+.mood-emoji {
+    font-size: 28px;
+    margin-bottom: 4px;
+}
+
+.mood-name {
+    font-size: 12px;
+    color: var(--text-color);
+    font-weight: 500;
+}

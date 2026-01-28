@@ -1,0 +1,170 @@
+/* Base button styles applied to all our buttons */
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Our main call-to-action button, uses the primary turquoise color */
+.btn-primary {
+    background-color: #00C4C1;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+/* Danger buttons for deletions or major warnings */
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+/* Subdued secondary buttons */
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-secondary:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Navigation buttons used in the calendar and listings */
+.btn-nav {
+    padding: 8px 16px;
+    color: #00BEBB;
+    border: solid 1px #00BEBB;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.btn-nav:hover {
+    background-color: #5a6268;
+}
+
+/* Special buttons for quick actions on the dashboard */
+.action-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px 20px;
+    background: var(--background-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.action-btn:hover {
+    background: #00C4C1;
+    border-color: #00C4C1;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,123,255,0.3);
+}
+
+/* Pagination navigation buttons */
+.pagination-btn {
+    padding: 8px 16px;
+    background-color: var(--background-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.pagination-btn:disabled {
+    background-color: var(--background-color);
+    cursor: not-allowed;
+}
+
+/* Filter toggle button with a nice badge for active filters */
+.filter-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: var(--background-color);
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.filter-toggle-btn:hover {
+    background-color: #e9ecef;
+    border-color: #00C4C1;
+}
+
+/* Clear filter button for quickly resetting search */
+.clear-filters-btn {
+    padding: 10px 16px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+    background-color: #c82333;
+}
+
+/* Quick date selection buttons for exports */
+.quick-btn {
+    padding: 8px 16px;
+    background: var(--background-color);
+    border: 2px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.quick-btn:hover {
+    background-color: #00C4C1;
+    border-color: #00C4C1;
+}
+
+/* Extra large buttons for main page actions */
+.btn-large {
+    padding: 15px 40px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.btn-large:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}

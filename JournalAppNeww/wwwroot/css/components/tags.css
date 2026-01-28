@@ -1,0 +1,145 @@
+/* Container for the tagging section */
+.tag-section {
+    background: var(--card-background);
+    padding: 0;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+/* Hide tags when section is closed */
+.tag-section.collapsible {
+    overflow: hidden;
+}
+
+.tag-section h4 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+/* Layout for the tag input field and add button */
+.tag-input-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+/* Little badge showing how many tags you've picked */
+.tag-count-badge {
+    margin-left: auto;
+    background: #00C4C1;
+    color: white;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* The area where tags appear when you expand the section */
+.tag-content {
+    padding: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+.tag-selection {
+    margin-top: 15px;
+}
+
+.tag-selection label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+/* Horizontal list of tags to pick from */
+.tag-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Individual clickable tag pill */
+.tag-item {
+    display: inline-block;
+    padding: 8px 16px;
+    background: var(--card-background);
+    border: 2px solid var(--border-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.tag-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+/* Highlight the tag when it's been chosen */
+.tag-item.selected {
+    background-color: #00A5A2;
+    border: solid 2px white;
+    font-weight: 500;
+}
+
+.tag-name {
+    color: var(--text-color);
+}
+
+/* Review section showing tags currently attached to the entry */
+.selected-tags-display {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid #dee2e6;
+}
+
+.selected-tags-display label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 10px;
+    color: var(--text-color);
+}
+
+.selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Small colorful badge for an active tag */
+.tag-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    background-color: #00C4C1;
+    color: white;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Tiny 'x' icon to remove a tag */
+.tag-remove {
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: bold;
+    line-height: 1;
+}
+
+.tag-remove:hover {
+    color: #ff4444;
+}
+
+/* Even smaller badges used in lists and previews */
+.tag-badge-small {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: #00C4C1;
+    color: white;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}

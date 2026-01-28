@@ -1,0 +1,43 @@
+/* Column layouts used in entry cards and listings */
+.entry-card-header, .entry-date-mood, .mood-display, .entry-item-meta, .mood-stat-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Mood displays that bundle an emoji with a label */
+.mood-display {
+    gap: 8px;
+}
+
+.mood-emoji-large { font-size: 32px; }
+.mood-emoji-big { font-size: 28px; }
+
+/* Horizontal badges for secondary moods and tags */
+.secondary-moods, .entry-tags, .selected-tags {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.secondary-mood-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background-color: var(--background-color);
+    border: 1px solid #b3d9ff10;
+    border-radius: 12px;
+    font-size: 13px;
+    color: #00BEBB;
+}
+
+/* Simple flex container for vertical lists */
+.entries-list, .mood-stats-grid, .tag-usage-grid {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Helper for aligning icons next to text */
+.streak-icon, .stat-icon, .action-icon, .toggle-icon {
+    flex-shrink: 0;
+}

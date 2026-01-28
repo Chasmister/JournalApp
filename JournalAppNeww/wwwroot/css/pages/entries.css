@@ -1,0 +1,129 @@
+/* Main container for the list of all journal entries */
+.entries-page {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.entries-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.entries-info {
+    font-size: 14px;
+}
+
+/* A simple vertical list of all your past thoughts */
+.entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+/* Section for searching and narrowing down your entries */
+.search-filter-section {
+    background: var(--card-background);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* Controls for filtering by date, mood, or tags */
+.filter-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* A badge to show that a filter is currently active */
+.active-filter-badge {
+    background-color: #00C4C1;
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+/* The panel that appears when you click the filter button */
+.filters-panel {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+/* Lists of moods and tags you can filter by */
+.mood-filter-list, .tag-filter-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+/* Bottom navigation for moving between pages of entries */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.pagination-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 14px;
+}
+
+/* Styling for when no entries match your search */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: var(--card-background);
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.empty-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.empty-state h3 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.empty-state p {
+    margin: 0 0 25px 0;
+    font-size: 16px;
+}
+
+/* Highlights the text that matches your search query */
+mark {
+    background-color: #ffeb3b;
+    padding: 2px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+}

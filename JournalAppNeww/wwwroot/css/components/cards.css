@@ -1,0 +1,168 @@
+/* Basic card style for standard info boxes */
+.stat-card {
+    background: var(--card-background);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Lift the stats card a bit when hovering */
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.stat-content h3 {
+    margin: 0 0 5px 0;
+    font-size: 32px;
+    color: var(--text-color);
+}
+
+.stat-content p {
+    margin: 0;
+    color: var(--text-color);
+    opacity: 0.8;
+    font-size: 14px;
+}
+
+/* Cards for showing recent journal entries on the dashboard */
+.recent-entries {
+    background: var(--card-background);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.recent-entries h3 {
+    margin: 0 0 20px 0;
+    color: var(--text-color);
+}
+
+.entry-card {
+    padding: 20px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Slide it slightly to the right to feel interactive */
+.entry-card:hover {
+    border-color: #00C4C1;
+    background-color: var(--sidebar-hover-bg);
+    transform: translateX(5px);
+}
+
+.entry-card .entry-card-header {
+    margin-bottom: 12px;
+}
+
+.entry-card .entry-title {
+    margin-bottom: 10px;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.entry-card .entry-preview {
+    margin-bottom: 15px;
+    line-height: 1.5;
+    opacity: 0.8;
+}
+
+.entry-card .entry-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #888;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* The larger item format used on the main entries list page */
+.entry-item {
+    background: var(--card-background);
+    padding: 25px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.entry-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    border-left-color: #0056b3;
+}
+
+.entry-item-title {
+    margin: 10px 0 0 0;
+    color: #00C4C1;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+/* Space out the text content to make it easier to read */
+.entry-item-content {
+    margin: 20px 0;
+    line-height: 1.7;
+    font-size: 15px;
+    color: var(--text-color);
+}
+
+/* Add some breathing room above the moods and tags */
+.secondary-moods, .entry-tags {
+    margin-bottom: 18px;
+}
+
+/* Metadata section at the very bottom of the card */
+.entry-item-meta {
+    padding-top: 15px;
+    border-top: 1px solid var(--border-color);
+    color: #888;
+    font-size: 13px;
+}
+
+/* Card for personal insights or streaks */
+.streak-card {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    background: var(--background-color);
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+}
+
+/* Makes the most important stat card stand out with a gradient */
+.streak-card.highlight {
+    background: linear-gradient(135deg, #00BEBB 0%, #00A5A2 100%);
+    color: white;
+    border-color: #00DEDB;
+}
+
+/* Card for mood stats showing an emoji and a bar */
+.mood-stat-card, .tag-usage-card {
+    padding: 15px;
+    background: var(--background-color);
+    border-radius: 8px;
+}
+
+/* Box for simple numerical stats */
+.stat-box {
+    text-align: center;
+    padding: 20px;
+    background: var(--background-color);
+    border-radius: 8px;
+    border: 2px solid var(--border-color);
+}
+
+.stat-number {
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 8px;
+}
