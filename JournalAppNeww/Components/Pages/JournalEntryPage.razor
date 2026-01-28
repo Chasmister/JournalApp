@@ -12,102 +12,125 @@
     </div>
 
     <div class="entry-form">
-        <div class="entry-form-grid">
-            <!-- Left Column: Title and Editor -->
-            <div class="entry-left-column">
-                <input type="text" class="entry-title" placeholder="Entry Title"
-                       @bind="currentEntry.Title" @bind:event="oninput" />
-
-                <div class="editor-container">
-                    <div id="quill-editor" style="height: 400px;"></div>
-                </div>
-            </div>
-
-            <!-- Right Column: Moods and Tags -->
-            <div class="entry-right-column">
-                <!-- Mood Selection -->
-                <div class="mood-section">
-                    <h4>How are you feeling? <span style="color: red;">*</span></h4>
-
-                    <div class="mood-primary">
-                        <label>Primary Mood:</label>
-                        <div class="mood-options">
-                            @foreach (var mood in availableMoods)
-                            {
-                                <div class="mood-item @(currentEntry.PrimaryMood == mood.Name ? "selected" : "")"
-                                     @onclick="() => SelectPrimaryMood(mood.Name)">
-                                    <span class="mood-emoji">@mood.Emoji</span>
-                                    <span class="mood-name">@mood.Name</span>
-                                </div>
-                            }
-                        </div>
-                    </div>
-
-                    <div class="mood-secondary">
-                        <label>Secondary Moods (optional, max 2):</label>
-                        <div class="mood-options">
-                            @foreach (var mood in availableMoods)
-                            {
-                                <div class="mood-item secondary @(IsSecondaryMoodSelected(mood.Name) ? "selected" : "")"
-                                     @onclick="() => ToggleSecondaryMood(mood.Name)">
-                                    <span class="mood-emoji">@mood.Emoji</span>
-                                    <span class="mood-name">@mood.Name</span>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tag Selection -->
-                <div class="tag-section">
-                    <h4>Tags</h4>
-
-                    <div class="tag-input-container">
-                        <input type="text" class="tag-input" placeholder="Add new tag..."
-                               @bind="newTagName" @bind:event="oninput"
-                               @onkeypress="HandleTagKeyPress" />
-                        <button class="btn btn-secondary" @onclick="CreateNewTag" disabled="@string.IsNullOrWhiteSpace(newTagName)">
-                            Add Tag
-                        </button>
-                    </div>
-
-                    @if (availableTags.Any())
+        <!-- Mood and Tag Sections (Now at the top) -->
+        <div class="top-sections">
+            <!-- Mood Selection (Collapsible) -->
+            <div class="mood-section collapsible">
+                <button class="section-toggle-btn" @onclick="ToggleMoodSection">
+                    <span class="toggle-icon">@(isMoodSectionOpen ? "▼" : "▶")</span>
+                    <span>How are you feeling?</span>
+                    <span style="color: red; margin-left: 5px;">*</span>
+                    @if (!string.IsNullOrEmpty(currentEntry.PrimaryMood) && !isMoodSectionOpen)
                     {
-                        <div class="tag-selection">
-                            <label>Select Tags:</label>
-                            <div class="tag-list">
-                                @foreach (var tag in availableTags)
+                        <span class="selected-mood-preview">@GetMoodEmoji(currentEntry.PrimaryMood)</span>
+                    }
+                </button>
+
+                @if (isMoodSectionOpen)
+                {
+                    <div class="mood-content">
+                        <div class="mood-primary">
+                            <label>Primary Mood:</label>
+                            <div class="mood-options">
+                                @foreach (var mood in availableMoods)
                                 {
-                                    <div class="tag-item @(IsTagSelected(tag.Id) ? "selected" : "")"
-                                         style="border-color: @tag.Color"
-                                         @onclick="() => ToggleTag(tag.Id)">
-                                        <span class="tag-name">@tag.Name</span>
+                                    <div class="mood-item @(currentEntry.PrimaryMood == mood.Name ? "selected" : "")"
+                                         @onclick="() => SelectPrimaryMood(mood.Name)">
+                                        <span class="mood-emoji">@mood.Emoji</span>
+                                        <span class="mood-name">@mood.Name</span>
                                     </div>
                                 }
                             </div>
                         </div>
-                    }
 
-                    @if (selectedTagIds.Any())
-                    {
-                        <div class="selected-tags-display">
-                            <label>Selected Tags:</label>
-                            <div class="selected-tags">
-                                @foreach (var tagId in selectedTagIds)
+                        <div class="mood-secondary">
+                            <label>Secondary Moods (optional, max 2):</label>
+                            <div class="mood-options">
+                                @foreach (var mood in availableMoods)
                                 {
-                                    var tag = availableTags.FirstOrDefault(t => t.Id == tagId);
-                                    if (tag != null)
-                                    {
-                                        <span class="tag-badge" style="background-color: @tag.Color">
-                                            @tag.Name
-                                            <span class="tag-remove" @onclick="() => ToggleTag(tagId)">×</span>
-                                        </span>
-                                    }
+                                    <div class="mood-item secondary @(IsSecondaryMoodSelected(mood.Name) ? "selected" : "")"
+                                         @onclick="() => ToggleSecondaryMood(mood.Name)">
+                                        <span class="mood-emoji">@mood.Emoji</span>
+                                        <span class="mood-name">@mood.Name</span>
+                                    </div>
                                 }
                             </div>
                         </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Tag Selection (Collapsible) -->
+            <div class="tag-section collapsible">
+                <button class="section-toggle-btn" @onclick="ToggleTagSection">
+                    <span class="toggle-icon">@(isTagSectionOpen ? "▼" : "▶")</span>
+                    <span>Tags</span>
+                    @if (selectedTagIds.Any() && !isTagSectionOpen)
+                    {
+                        <span class="tag-count-badge">@selectedTagIds.Count</span>
                     }
-                </div>
+                </button>
+
+                @if (isTagSectionOpen)
+                {
+                    <div class="tag-content">
+                        <div class="tag-input-container">
+                            <input type="text" class="tag-input" placeholder="Add new tag..."
+                                   @bind="newTagName" @bind:event="oninput"
+                                   @onkeypress="HandleTagKeyPress" />
+                            <button class="btn btn-secondary" @onclick="CreateNewTag" disabled="@string.IsNullOrWhiteSpace(newTagName)">
+                                Add Tag
+                            </button>
+                        </div>
+
+                        @if (availableTags.Any())
+                        {
+                            <div class="tag-selection">
+                                <label>Select Tags:</label>
+                                <div class="tag-list">
+                                    @foreach (var tag in availableTags)
+                                    {
+                                        <div class="tag-item @(IsTagSelected(tag.Id) ? "selected" : "")"
+                                             style="border-color: @tag.Color"
+                                             @onclick="() => ToggleTag(tag.Id)">
+                                            <span class="tag-name">@tag.Name</span>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        @if (selectedTagIds.Any())
+                        {
+                            <div class="selected-tags-display">
+                                <label>Selected Tags:</label>
+                                <div class="selected-tags">
+                                    @foreach (var tagId in selectedTagIds)
+                                    {
+                                        var tag = availableTags.FirstOrDefault(t => t.Id == tagId);
+                                        if (tag != null)
+                                        {
+                                            <span class="tag-badge" style="background-color: @tag.Color">
+                                                @tag.Name
+                                                <span class="tag-remove" @onclick="() => ToggleTag(tagId)">×</span>
+                                            </span>
+                                        }
+                                    }
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Title and Editor Section -->
+        <div class="editor-section">
+            <input type="text" class="entry-title" placeholder="Entry Title"
+                   @bind="currentEntry.Title" @bind:event="oninput" />
+
+            <div class="editor-container">
+                <div id="quill-editor" style="height: 400px;"></div>
             </div>
         </div>
 
@@ -146,6 +169,10 @@ public string? DateParam { get; set; }
     private string statusMessage = string.Empty;
     private string statusClass = string.Empty;
     private List<string> selectedSecondaryMoods = new List<string>();
+
+    // Collapsible section states
+    private bool isMoodSectionOpen = true;
+    private bool isTagSectionOpen = false;
 
     // Tags
     private List<Tag> availableTags = new List<Tag>();
@@ -238,10 +265,26 @@ public string? DateParam { get; set; }
         StateHasChanged();
     }
 
+    private void ToggleMoodSection()
+    {
+        isMoodSectionOpen = !isMoodSectionOpen;
+    }
+
+    private void ToggleTagSection()
+    {
+        isTagSectionOpen = !isTagSectionOpen;
+    }
+
     private void SelectPrimaryMood(string mood)
     {
         currentEntry.PrimaryMood = mood;
         StateHasChanged();
+    }
+
+    private string GetMoodEmoji(string moodName)
+    {
+        var mood = availableMoods.FirstOrDefault(m => m.Name == moodName);
+        return mood?.Emoji ?? "";
     }
 
     private void ToggleSecondaryMood(string mood)
