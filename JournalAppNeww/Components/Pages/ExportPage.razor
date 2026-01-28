@@ -1,0 +1,180 @@
+﻿@page "/export"
+@using JournalAppNeww.Services
+@inject PdfExportService PdfExportService
+@inject IJSRuntime JSRuntime
+
+<div class="export-page">
+    <div class="export-header">
+        <h2>Export Journal Entries</h2>
+        <p class="subtitle">Export your journal entries as a PDF document</p>
+    </div>
+
+    <div class="export-form">
+        <div class="form-section">
+            <h3>📅 Select Date Range</h3>
+
+            <div class="date-range-selector">
+                <div class="date-input-group">
+                    <label>Start Date:</label>
+                    <input type="date"
+                           class="date-input"
+                           @bind="startDate"
+                           max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                </div>
+
+                <div class="date-input-group">
+                    <label>End Date:</label>
+                    <input type="date"
+                           class="date-input"
+                           @bind="endDate"
+                           max="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                </div>
+            </div>
+
+            <div class="quick-date-buttons">
+                <button class="quick-btn" @onclick="() => SetDateRange(7)">Last 7 Days</button>
+                <button class="quick-btn" @onclick="() => SetDateRange(30)">Last 30 Days</button>
+                <button class="quick-btn" @onclick="() => SetDateRange(90)">Last 90 Days</button>
+                <button class="quick-btn" @onclick="SetThisMonth">This Month</button>
+                <button class="quick-btn" @onclick="SetThisYear">This Year</button>
+                <button class="quick-btn" @onclick="SetAllTime">All Time</button>
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>⚙️ Export Options</h3>
+
+            <div class="export-options">
+                <label class="option-checkbox">
+                    <input type="checkbox" @bind="includeMoods" />
+                    <span>Include Moods</span>
+                </label>
+
+                <label class="option-checkbox">
+                    <input type="checkbox" @bind="includeTags" />
+                    <span>Include Tags</span>
+                </label>
+            </div>
+        </div>
+
+        <div class="export-actions">
+            <button class="btn btn-primary btn-large"
+                    @onclick="ExportToPdf"
+                    disabled="@isExporting">
+                @if (isExporting)
+                {
+                    <span>⏳ Generating PDF...</span>
+                }
+                else
+                {
+                    <span>📄 Export to PDF</span>
+                }
+            </button>
+        </div>
+
+        @if (!string.IsNullOrEmpty(statusMessage))
+        {
+            <div class="status-message @statusClass">
+                @statusMessage
+            </div>
+        }
+    </div>
+
+    <div class="export-info">
+        <h4>ℹ️ About PDF Export</h4>
+        <ul>
+            <li>The PDF will include all entries within the selected date range</li>
+            <li>Each entry will be formatted with its date, title, content, and metadata</li>
+            <li>You can choose to include or exclude moods and tags</li>
+            <li>The exported PDF will be saved to your Downloads folder</li>
+        </ul>
+    </div>
+</div>
+
+@code {
+    private DateTime startDate = DateTime.Today.AddDays(-30);
+    private DateTime endDate = DateTime.Today;
+    private bool includeMoods = true;
+    private bool includeTags = true;
+    private bool isExporting = false;
+    private string statusMessage = string.Empty;
+    private string statusClass = string.Empty;
+
+    private void SetDateRange(int days)
+    {
+        endDate = DateTime.Today;
+        startDate = DateTime.Today.AddDays(-days);
+    }
+
+    private void SetThisMonth()
+    {
+        var now = DateTime.Today;
+        startDate = new DateTime(now.Year, now.Month, 1);
+        endDate = DateTime.Today;
+    }
+
+    private void SetThisYear()
+    {
+        var now = DateTime.Today;
+        startDate = new DateTime(now.Year, 1, 1);
+        endDate = DateTime.Today;
+    }
+
+    private void SetAllTime()
+    {
+        startDate = new DateTime(2000, 1, 1);
+        endDate = DateTime.Today;
+    }
+
+    private async Task ExportToPdf()
+    {
+        if (startDate > endDate)
+        {
+            statusMessage = "Start date cannot be after end date.";
+            statusClass = "error";
+            return;
+        }
+
+        isExporting = true;
+        statusMessage = "Generating PDF...";
+        statusClass = "info";
+        StateHasChanged();
+
+        try
+        {
+            var pdfBytes = await PdfExportService.ExportEntriesToPdfAsync(
+                startDate,
+                endDate,
+                includeMoods,
+                includeTags
+            );
+
+            var fileName = $"Journal_Export_{startDate:yyyy-MM-dd}_to_{endDate:yyyy-MM-dd}.pdf";
+            await SavePdfFile(pdfBytes, fileName);
+
+            statusMessage = $"PDF exported successfully! Saved as {fileName}";
+            statusClass = "success";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error exporting PDF: {ex.Message}";
+            statusClass = "error";
+        }
+        finally
+        {
+            isExporting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SavePdfFile(byte[] pdfBytes, string fileName)
+    {
+        var downloadsPath = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+            "Downloads"
+        );
+
+        var filePath = Path.Combine(downloadsPath, fileName);
+        await File.WriteAllBytesAsync(filePath, pdfBytes);
+    }
+}

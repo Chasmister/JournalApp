@@ -21,6 +21,7 @@ namespace JournalAppNeww
     		builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Services.AddSingleton<DatabaseService>();
             builder.Services.AddSingleton<ThemeService>();
+            builder.Services.AddSingleton<PdfExportService>();
             builder.Logging.AddDebug();
 #endif
 
